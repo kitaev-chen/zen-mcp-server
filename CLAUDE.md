@@ -1,320 +1,194 @@
-# Claude Development Guide for Zen MCP Server
+# Zen MCP Server - AI开发上下文文档
 
-This file contains essential commands and workflows for developing and maintaining the Zen MCP Server when working with Claude. Use these instructions to efficiently run quality checks, manage the server, check logs, and run tests.
+## 变更日志 (Changelog)
 
-## Quick Reference Commands
+**2025-11-15**: 初始化AI上下文架构分析，添加模块结构图和详细的模块级文档
 
-### Code Quality Checks
+---
 
-Before making any changes or submitting PRs, always run the comprehensive quality checks:
+## 项目愿景
 
-```bash
-# Activate virtual environment first
-source venv/bin/activate
+Zen MCP Server是一个多模型AI协作的Model Context Protocol服务器，为Claude Code、Codex CLI、Cursor等AI开发工具提供多模型访问能力。它实现了真正的AI模型间协作，支持跨工具的对话连续性，让开发者能够在一个统一的界面中协调多个AI模型的专长。
 
-# Run all quality checks (linting, formatting, tests)
-./code_quality_checks.sh
+## 架构概览
+
+Zen采用模块化架构设计，核心组件包括：
+
+- **MCP服务器核心**: 实现MCP协议，处理工具注册和请求路由
+- **工具系统**: 18个专用AI工具，覆盖代码分析、规划、调试等开发场景
+- **提供商系统**: 支持8个主流AI提供商的统一抽象层
+- **对话内存**: 状态less到stateful的桥梁，支持跨工具连续对话
+- **CLink系统**: CLI桥接器，支持外部AI CLI的集成和子代理
+- **配置管理**: 灵活的环境变量配置和模型限制管理
+
+## ✨ 模块结构图
+
+```mermaid
+graph TD
+    A["(Root) Zen MCP Server"] --> B["tools"];
+    A --> C["providers"];
+    A --> D["systemprompts"];
+    A --> E["utils"];
+    A --> F["clink"];
+    A --> G["conf"];
+    A --> H["tests"];
+    A --> I["simulator_tests"];
+    A --> J["logs"];
+
+    B --> B1["tools/shared"];
+    B --> B2["tools/workflow"];
+    B --> B3["tools/simple"];
+
+    C --> C1["providers/registries"];
+    C --> C2["providers/shared"];
+
+    F --> F1["clink/agents"];
+    F --> F2["clink/parsers"];
+
+    G --> G1["conf/cli_clients"];
+
+    click B "./tools/CLAUDE.md" "View tools module docs"
+    click C "./providers/CLAUDE.md" "View providers module docs"
+    click D "./systemprompts/CLAUDE.md" "View systemprompts module docs"
+    click E "./utils/CLAUDE.md" "View utils module docs"
+    click F "./clink/CLAUDE.md" "View clink module docs"
+    click G "./conf/CLAUDE.md" "View conf module docs"
+    click H "./tests/CLAUDE.md" "View tests module docs"
+    click I "./simulator_tests/CLAUDE.md" "View simulator_tests module docs"
 ```
 
-This script automatically runs:
-- Ruff linting with auto-fix
-- Black code formatting 
-- Import sorting with isort
-- Complete unit test suite (excluding integration tests)
-- Verification that all checks pass 100%
+## 模块索引
 
-**Run Integration Tests (requires API keys):**
+| 模块路径 | 语言 | 职责 | 入口文件 | 测试目录 | 配置文件 |
+|---------|------|------|---------|----------|----------|
+| `tools/` | Python | AI工具实现，18个专用工具 | `tools/__init__.py` | `tests/test_*.py` | - |
+| `providers/` | Python | AI提供商抽象和实现 | `providers/__init__.py` | `tests/test_*provider*.py` | `conf/*_models.json` |
+| `systemprompts/` | Python | 系统提示词模板 | `systemprompts/__init__.py` | - | `systemprompts/clink/` |
+| `utils/` | Python | 工具函数和共享组件 | `utils/__init__.py` | `tests/test_utils.py` | - |
+| `clink/` | Python | CLI桥接器和子代理系统 | `clink/__init__.py` | `tests/test_clink_*.py` | `conf/cli_clients/` |
+| `conf/` | Python/JSON | 模型配置和客户端配置 | `conf/__init__.py` | - | `conf/*.json` |
+| `tests/` | Python | 单元测试和集成测试 | `tests/conftest.py` | - | - |
+| `simulator_tests/` | Python | 端到端模拟测试 | `simulator_tests/base_test.py` | - | - |
+| `logs/` | - | 服务器日志和活动跟踪 | - | - | - |
+
+## 运行和开发
+
+### 环境设置
 ```bash
-# Run integration tests that make real API calls
+# 安装和配置服务器
+./run-server.sh
+
+# 激活虚拟环境
+source .zen_venv/bin/activate
+```
+
+### 代码质量检查
+```bash
+# 运行全面质量检查
+./code_quality_checks.sh
+
+# 运行集成测试
 ./run_integration_tests.sh
 
-# Run integration tests + simulator tests
+# 运行模拟器测试
+python communication_simulator_test.py --quick
+```
+
+### 服务器管理
+```bash
+# 查看实时日志
+tail -f logs/mcp_server.log
+tail -f logs/mcp_activity.log
+
+# 服务器状态检查
+./run-server.sh -f
+```
+
+## 测试策略
+
+### 测试分层
+1. **单元测试** (`tests/`): 模块级别的快速测试，不需要API密钥
+2. **集成测试** (`tests/ -m integration`): 使用本地模型的真实API调用测试
+3. **模拟器测试** (`simulator_tests/`): 端到端工作流验证，使用真实API密钥
+
+### 推荐测试流程
+```bash
+# 开发前快速验证
+python communication_simulator_test.py --quick --verbose
+
+# 全面功能测试
+python communication_simulator_test.py --individual cross_tool_continuation
+
+# 性能和稳定性测试
 ./run_integration_tests.sh --with-simulator
 ```
 
-### Server Management
+## 编码标准
 
-#### Setup/Update the Server
+### 代码风格
+- **格式化**: Black (120字符行长度)
+- **导入排序**: isort (profile: black)
+- **代码检查**: Ruff (pycodestyle, pyflakes, flake8-bugbear)
+- **类型检查**: Pydantic v2.0+ 强类型
+
+### 架构原则
+- **模块化设计**: 清晰的职责分离和依赖管理
+- **提供商抽象**: 统一的AI提供商接口
+- **错误处理**: 优雅的降级和用户友好的错误消息
+- **性能优化**: 智能token分配和文件去重
+- **安全性**: 输入验证和敏感信息保护
+
+## AI使用指南
+
+### 模型选择策略
+- **Auto模式**: Claude自动为每个任务选择最佳模型
+- **手动指定**: 在提示中明确指定模型名称
+- **工作流协作**: 不同模型在不同阶段发挥作用
+
+### 对话连续性
+- **跨工具继承**: 分析→调试→修复的完整上下文传递
+- **内存管理**: 智能token预算和对话历史压缩
+- **上下文复兴**: 即使上下文重置也能恢复对话
+
+### CLink子代理
+- **隔离执行**: 在新上下文中运行专用任务
+- **角色专业化**: 规划师、代码审查员等特定角色
+- **CLI集成**: Gemini CLI、Codex CLI等外部工具桥接
+
+---
+
+## 模块详细文档
+
+各模块的详细文档请参考：
+- [Tools模块](./tools/CLAUDE.md) - AI工具实现细节
+- [Providers模块](./providers/CLAUDE.md) - AI提供商集成
+- [System Prompts模块](./systemprompts/CLAUDE.md) - 提示词工程
+- [Utils模块](./utils/CLAUDE.md) - 工具函数库
+- [CLink模块](./clink/CLAUDE.md) - CLI桥接系统
+- [Configuration模块](./conf/CLAUDE.md) - 配置管理
+- [Tests模块](./tests/CLAUDE.md) - 测试框架
+- [Simulator Tests模块](./simulator_tests/CLAUDE.md) - 端到端测试
+
+---
+
+## 故障排除
+
+### 常见问题
+1. **API密钥配置**: 检查`.env`文件中的密钥设置
+2. **模型可用性**: 使用`listmodels`工具检查可用模型
+3. **Token限制**: 启用智能文件分块和对话压缩
+4. **连接问题**: 检查网络连接和API端点配置
+
+### 调试技巧
 ```bash
-# Run setup script (handles everything)
-./run-server.sh
-```
+# 启用调试日志
+LOG_LEVEL=DEBUG python communication_simulator_test.py
 
-This script will:
-- Set up Python virtual environment
-- Install all dependencies
-- Create/update .env file
-- Configure MCP with Claude
-- Verify API keys
-
-#### View Logs
-```bash
-# Follow logs in real-time
-./run-server.sh -f
-
-# Or manually view logs
-tail -f logs/mcp_server.log
-```
-
-### Log Management
-
-#### View Server Logs
-```bash
-# View last 500 lines of server logs
-tail -n 500 logs/mcp_server.log
-
-# Follow logs in real-time
-tail -f logs/mcp_server.log
-
-# View specific number of lines
-tail -n 100 logs/mcp_server.log
-
-# Search logs for specific patterns
-grep "ERROR" logs/mcp_server.log
-grep "tool_name" logs/mcp_activity.log
-```
-
-#### Monitor Tool Executions Only
-```bash
-# View tool activity log (focused on tool calls and completions)
-tail -n 100 logs/mcp_activity.log
-
-# Follow tool activity in real-time
-tail -f logs/mcp_activity.log
-
-# Use simple tail commands to monitor logs
-tail -f logs/mcp_activity.log | grep -E "(TOOL_CALL|TOOL_COMPLETED|ERROR|WARNING)"
-```
-
-#### Available Log Files
-
-**Current log files (with proper rotation):**
-```bash
-# Main server log (all activity including debug info) - 20MB max, 10 backups
-tail -f logs/mcp_server.log
-
-# Tool activity only (TOOL_CALL, TOOL_COMPLETED, etc.) - 20MB max, 5 backups  
-tail -f logs/mcp_activity.log
-```
-
-**For programmatic log analysis (used by tests):**
-```python
-# Import the LogUtils class from simulator tests
-from simulator_tests.log_utils import LogUtils
-
-# Get recent logs
-recent_logs = LogUtils.get_recent_server_logs(lines=500)
-
-# Check for errors
-errors = LogUtils.check_server_logs_for_errors()
-
-# Search for specific patterns
-matches = LogUtils.search_logs_for_pattern("TOOL_CALL.*debug")
-```
-
-### Testing
-
-Simulation tests are available to test the MCP server in a 'live' scenario, using your configured
-API keys to ensure the models are working and the server is able to communicate back and forth. 
-
-**IMPORTANT**: After any code changes, restart your Claude session for the changes to take effect.
-
-#### Run All Simulator Tests
-```bash
-# Run the complete test suite
-python communication_simulator_test.py
-
-# Run tests with verbose output
-python communication_simulator_test.py --verbose
-```
-
-#### Quick Test Mode (Recommended for Time-Limited Testing)
-```bash
-# Run quick test mode - 6 essential tests that provide maximum functionality coverage
-python communication_simulator_test.py --quick
-
-# Run quick test mode with verbose output
-python communication_simulator_test.py --quick --verbose
-```
-
-**Quick mode runs these 6 essential tests:**
-- `cross_tool_continuation` - Cross-tool conversation memory testing (chat, thinkdeep, codereview, analyze, debug)
-- `conversation_chain_validation` - Core conversation threading and memory validation
-- `consensus_workflow_accurate` - Consensus tool with flash model and stance testing
-- `codereview_validation` - CodeReview tool with flash model and multi-step workflows
-- `planner_validation` - Planner tool with flash model and complex planning workflows
-- `token_allocation_validation` - Token allocation and conversation history buildup testing
-
-**Why these 6 tests:** They cover the core functionality including conversation memory (`utils/conversation_memory.py`), chat tool functionality, file processing and deduplication, model selection (flash/flashlite/o3), and cross-tool conversation workflows. These tests validate the most critical parts of the system in minimal time.
-
-**Note:** Some workflow tools (analyze, codereview, planner, consensus, etc.) require specific workflow parameters and may need individual testing rather than quick mode testing.
-
-#### Run Individual Simulator Tests (For Detailed Testing)
-```bash
-# List all available tests
-python communication_simulator_test.py --list-tests
-
-# RECOMMENDED: Run tests individually for better isolation and debugging
-python communication_simulator_test.py --individual basic_conversation
-python communication_simulator_test.py --individual content_validation
-python communication_simulator_test.py --individual cross_tool_continuation
-python communication_simulator_test.py --individual memory_validation
-
-# Run multiple specific tests
-python communication_simulator_test.py --tests basic_conversation content_validation
-
-# Run individual test with verbose output for debugging
-python communication_simulator_test.py --individual memory_validation --verbose
-```
-
-Available simulator tests include:
-- `basic_conversation` - Basic conversation flow with chat tool
-- `content_validation` - Content validation and duplicate detection
-- `per_tool_deduplication` - File deduplication for individual tools
-- `cross_tool_continuation` - Cross-tool conversation continuation scenarios
-- `cross_tool_comprehensive` - Comprehensive cross-tool file deduplication and continuation
-- `line_number_validation` - Line number handling validation across tools
-- `memory_validation` - Conversation memory validation
-- `model_thinking_config` - Model-specific thinking configuration behavior
-- `o3_model_selection` - O3 model selection and usage validation
-- `ollama_custom_url` - Ollama custom URL endpoint functionality
-- `openrouter_fallback` - OpenRouter fallback behavior when only provider
-- `openrouter_models` - OpenRouter model functionality and alias mapping
-- `token_allocation_validation` - Token allocation and conversation history validation
-- `testgen_validation` - TestGen tool validation with specific test function
-- `refactor_validation` - Refactor tool validation with codesmells
-- `conversation_chain_validation` - Conversation chain and threading validation
-- `consensus_stance` - Consensus tool validation with stance steering (for/against/neutral)
-
-**Note**: All simulator tests should be run individually for optimal testing and better error isolation.
-
-#### Run Unit Tests Only
-```bash
-# Run all unit tests (excluding integration tests that require API keys)
-python -m pytest tests/ -v -m "not integration"
-
-# Run specific test file
-python -m pytest tests/test_refactor.py -v
-
-# Run specific test function
-python -m pytest tests/test_refactor.py::TestRefactorTool::test_format_response -v
-
-# Run tests with coverage
-python -m pytest tests/ --cov=. --cov-report=html -m "not integration"
-```
-
-#### Run Integration Tests (Uses Free Local Models)
-
-**Setup Requirements:**
-```bash
-# 1. Install Ollama (if not already installed)
-# Visit https://ollama.ai or use brew install ollama
-
-# 2. Start Ollama service
-ollama serve
-
-# 3. Pull a model (e.g., llama3.2)
-ollama pull llama3.2
-
-# 4. Set environment variable for custom provider
-export CUSTOM_API_URL="http://localhost:11434"
-```
-
-**Run Integration Tests:**
-```bash
-# Run integration tests that make real API calls to local models
-python -m pytest tests/ -v -m "integration"
-
-# Run specific integration test
-python -m pytest tests/test_prompt_regression.py::TestPromptIntegration::test_chat_normal_prompt -v
-
-# Run all tests (unit + integration)
-python -m pytest tests/ -v
-```
-
-**Note**: Integration tests use the local-llama model via Ollama, which is completely FREE to run unlimited times. Requires `CUSTOM_API_URL` environment variable set to your local Ollama endpoint. They can be run safely in CI/CD but are excluded from code quality checks to keep them fast.
-
-### Development Workflow
-
-#### Before Making Changes
-1. Ensure virtual environment is activated: `source .zen_venv/bin/activate`
-2. Run quality checks: `./code_quality_checks.sh`
-3. Check logs to ensure server is healthy: `tail -n 50 logs/mcp_server.log`
-
-#### After Making Changes
-1. Run quality checks again: `./code_quality_checks.sh`
-2. Run integration tests locally: `./run_integration_tests.sh`
-3. Run quick test mode for fast validation: `python communication_simulator_test.py --quick`
-4. Run relevant specific simulator tests if needed: `python communication_simulator_test.py --individual <test_name>`
-5. Check logs for any issues: `tail -n 100 logs/mcp_server.log`
-6. Restart Claude session to use updated code
-
-#### Before Committing/PR
-1. Final quality check: `./code_quality_checks.sh`
-2. Run integration tests: `./run_integration_tests.sh`
-3. Run quick test mode: `python communication_simulator_test.py --quick`
-4. Run full simulator test suite (optional): `./run_integration_tests.sh --with-simulator`
-5. Verify all tests pass 100%
-
-### Common Troubleshooting
-
-#### Server Issues
-```bash
-# Check if Python environment is set up correctly
-./run-server.sh
-
-# View recent errors
+# 检查最近的错误
 grep "ERROR" logs/mcp_server.log | tail -20
 
-# Check virtual environment
-which python
-# Should show: .../zen-mcp-server/.zen_venv/bin/python
+# 验证工具配置
+python -c "from tools import *; print(len(TOOLS))"
 ```
 
-#### Test Failures
-```bash
-# First try quick test mode to see if it's a general issue
-python communication_simulator_test.py --quick --verbose
-
-# Run individual failing test with verbose output
-python communication_simulator_test.py --individual <test_name> --verbose
-
-# Check server logs during test execution
-tail -f logs/mcp_server.log
-
-# Run tests with debug output
-LOG_LEVEL=DEBUG python communication_simulator_test.py --individual <test_name>
-```
-
-#### Linting Issues
-```bash
-# Auto-fix most linting issues
-ruff check . --fix
-black .
-isort .
-
-# Check what would be changed without applying
-ruff check .
-black --check .
-isort --check-only .
-```
-
-### File Structure Context
-
-- `./code_quality_checks.sh` - Comprehensive quality check script
-- `./run-server.sh` - Server setup and management
-- `communication_simulator_test.py` - End-to-end testing framework
-- `simulator_tests/` - Individual test modules
-- `tests/` - Unit test suite
-- `tools/` - MCP tool implementations
-- `providers/` - AI provider implementations
-- `systemprompts/` - System prompt definitions
-- `logs/` - Server log files
-
-### Environment Requirements
-
-- Python 3.9+ with virtual environment
-- All dependencies from `requirements.txt` installed
-- Proper API keys configured in `.env` file
-
-This guide provides everything needed to efficiently work with the Zen MCP Server codebase using Claude. Always run quality checks before and after making changes to ensure code integrity.
+本上下文文档提供了Zen MCP Server的完整开发指南，确保高效的代码协作和项目维护。

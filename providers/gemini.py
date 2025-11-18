@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, ClassVar, Optional
 if TYPE_CHECKING:
     from tools.models import ToolModelCategory
 
-from google import genai
-from google.genai import types
+import google.generativeai as genai
+from google.generativeai import types
 
 from utils.env import get_env
 from utils.image_utils import validate_image

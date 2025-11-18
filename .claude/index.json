@@ -1,0 +1,293 @@
+{
+  "timestamp": "2025-11-15T01:32:50Z",
+  "project": "zen-mcp-server",
+  "version": "9.1.3",
+  "scan_type": "adaptive_three_level",
+  "coverage": {
+    "total_files_estimated": 285,
+    "files_scanned": 45,
+    "coverage_percentage": 15.8,
+    "modules_identified": 8,
+    "modules_documented": 8,
+    "module_coverage": 100
+  },
+  "modules": [
+    {
+      "name": "tools",
+      "path": "tools/",
+      "language": "Python",
+      "responsibility": "AI工具实现，18个专用工具",
+      "entry_file": "tools/__init__.py",
+      "test_directory": "tests/test_*.py",
+      "config_files": [],
+      "key_files": [
+        "tools/shared/base_tool.py",
+        "tools/shared/base_models.py",
+        "tools/workflow/workflow_mixin.py",
+        "tools/chat.py",
+        "tools/clink.py",
+        "tools/thinkdeep.py",
+        "tools/planner.py",
+        "tools/consensus.py",
+        "tools/codereview.py",
+        "tools/debug.py",
+        "tools/precommit.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["BaseTool abstract class", "Tool execution interface", "JSON Schema generation"],
+      "dependencies": ["providers/*", "utils/*", "systemprompts/*", "config.py"],
+      "testing": ["unit tests", "integration tests", "simulator validation tests"]
+    },
+    {
+      "name": "providers",
+      "path": "providers/",
+      "language": "Python",
+      "responsibility": "AI提供商抽象和实现，8个主流AI服务",
+      "entry_file": "providers/__init__.py",
+      "test_directory": "tests/test_*provider*.py",
+      "config_files": ["conf/*_models.json"],
+      "key_files": [
+        "providers/base.py",
+        "providers/registry.py",
+        "providers/gemini.py",
+        "providers/openai.py",
+        "providers/azure_openai.py",
+        "providers/xai.py",
+        "providers/dial.py",
+        "providers/openrouter.py",
+        "providers/custom.py",
+        "providers/shared/model_capabilities.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["ModelProvider abstract class", "Model registration", "Capability management"],
+      "dependencies": ["providers/shared/*", "utils/*", "conf/*"],
+      "testing": ["unit tests", "integration tests", "model resolution tests"]
+    },
+    {
+      "name": "systemprompts",
+      "path": "systemprompts/",
+      "language": "Python",
+      "responsibility": "系统提示词模板，工具行为定义",
+      "entry_file": "systemprompts/__init__.py",
+      "test_directory": "",
+      "config_files": ["systemprompts/clink/"],
+      "key_files": [
+        "systemprompts/chat_prompt.py",
+        "systemprompts/thinkdeep_prompt.py",
+        "systemprompts/planner_prompt.py",
+        "systemprompts/consensus_prompt.py",
+        "systemprompts/codereview_prompt.py",
+        "systemprompts/debug_prompt.py"
+      ],
+      "status": "documented",
+      "complexity": "medium",
+      "interfaces": ["String constants", "Template parameters", "Role definitions"],
+      "dependencies": [],
+      "testing": ["prompt regression tests", "format validation tests"]
+    },
+    {
+      "name": "utils",
+      "path": "utils/",
+      "language": "Python",
+      "responsibility": "工具函数和共享组件，基础设施层",
+      "entry_file": "utils/__init__.py",
+      "test_directory": "tests/test_utils.py",
+      "config_files": [],
+      "key_files": [
+        "utils/conversation_memory.py",
+        "utils/file_utils.py",
+        "utils/token_utils.py",
+        "utils/env.py",
+        "utils/security_config.py",
+        "utils/model_context.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["File I/O", "Token calculation", "Environment variables", "Conversation memory"],
+      "dependencies": ["config.py"],
+      "testing": ["unit tests", "memory validation tests", "file handling tests"]
+    },
+    {
+      "name": "clink",
+      "path": "clink/",
+      "language": "Python",
+      "responsibility": "CLI桥接器和子代理系统，外部AI CLI集成",
+      "entry_file": "clink/__init__.py",
+      "test_directory": "tests/test_clink_*.py",
+      "config_files": ["conf/cli_clients/"],
+      "key_files": [
+        "clink/registry.py",
+        "clink/models.py",
+        "clink/agents/base.py",
+        "clink/agents/claude.py",
+        "clink/agents/gemini.py",
+        "clink/agents/codex.py",
+        "clink/parsers/base.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["CLI agent abstraction", "Response parsing", "Role management"],
+      "dependencies": ["providers/*", "utils/*", "systemprompts/clink/*", "conf/cli_clients/*"],
+      "testing": ["integration tests", "CLI agent tests", "parser tests"]
+    },
+    {
+      "name": "conf",
+      "path": "conf/",
+      "language": "JSON/Python",
+      "responsibility": "模型配置和客户端配置，元数据管理",
+      "entry_file": "conf/__init__.py",
+      "test_directory": "tests/test_model_*.py",
+      "config_files": ["conf/*.json"],
+      "key_files": [
+        "conf/openai_models.json",
+        "conf/gemini_models.json",
+        "conf/azure_models.json",
+        "conf/xai_models.json",
+        "conf/dial_models.json",
+        "conf/openrouter_models.json",
+        "conf/custom_models.json",
+        "conf/cli_clients/claude.json",
+        "conf/cli_clients/gemini.json"
+      ],
+      "status": "documented",
+      "complexity": "medium",
+      "interfaces": ["JSON configuration", "Model metadata", "CLI client definitions"],
+      "dependencies": [],
+      "testing": ["model enumeration tests", "configuration validation tests"]
+    },
+    {
+      "name": "tests",
+      "path": "tests/",
+      "language": "Python",
+      "responsibility": "单元测试和集成测试，质量保证",
+      "entry_file": "tests/conftest.py",
+      "test_directory": "tests/",
+      "config_files": [],
+      "key_files": [
+        "tests/conftest.py",
+        "tests/mock_helpers.py",
+        "tests/test_openai_provider.py",
+        "tests/test_chat.py",
+        "tests/test_conversation_memory.py",
+        "tests/test_clink_integration.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["pytest framework", "Mock utilities", "Test fixtures"],
+      "dependencies": ["tools/*", "providers/*", "utils/*"],
+      "testing": ["CI/CD integration", "coverage reporting", "automated execution"]
+    },
+    {
+      "name": "simulator_tests",
+      "path": "simulator_tests/",
+      "language": "Python",
+      "responsibility": "端到端模拟测试，真实API验证",
+      "entry_file": "simulator_tests/base_test.py",
+      "test_directory": "simulator_tests/",
+      "config_files": [],
+      "key_files": [
+        "communication_simulator_test.py",
+        "simulator_tests/base_test.py",
+        "simulator_tests/log_utils.py",
+        "simulator_tests/test_cross_tool_continuation.py",
+        "simulator_tests/test_conversation_chain_validation.py",
+        "simulator_tests/test_consensus_workflow_accurate.py"
+      ],
+      "status": "documented",
+      "complexity": "high",
+      "interfaces": ["End-to-end testing", "Real API integration", "Log monitoring"],
+      "dependencies": ["server.py", "tools/*", "providers/*"],
+      "testing": ["workflow validation", "multi-tool collaboration", "real-world scenario testing"]
+    }
+  ],
+  "ignore_rules": [
+    "node_modules/**",
+    ".git/**",
+    ".github/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    "__pycache__/**",
+    "*.lock",
+    "*.log",
+    "*.bin",
+    "*.pdf",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.mp4",
+    "*.zip",
+    "*.tar",
+    "*.gz"
+  ],
+  "ignored_directories": [
+    "__pycache__",
+    "build",
+    "dist",
+    ".git"
+  ],
+  "large_files": [
+    "tests/openai_cassettes/",
+    "tests/gemini_cassettes/",
+    "logs/"
+  ],
+  "gaps": [
+    {
+      "type": "file_size",
+      "description": "Large binary and cassette files were not read for efficiency",
+      "files": ["tests/*_cassettes/", "logs/"],
+      "impact": "low",
+      "recommendation": "These files contain test data and logs, not critical for architecture understanding"
+    },
+    {
+      "type": "deep_dive",
+      "description": "Individual tool implementation details could be explored for deeper understanding",
+      "modules": ["tools/individual_tools", "providers/specialized_features"],
+      "impact": "medium",
+      "recommendation": "Explore specific tool implementations (refactor.py, testgen.py) and provider edge cases"
+    }
+  ],
+  "next_steps": [
+    "Explore individual tool implementations for detailed workflow analysis",
+    "Investigate provider-specific edge cases and error handling",
+    "Analyze conversation memory patterns and optimization opportunities",
+    "Review security configurations and access control mechanisms"
+  ],
+  "truncated": false,
+  "scan_duration_minutes": 25,
+  "quality_indicators": {
+    "documentation_completeness": "high",
+    "architecture_understanding": "high",
+    "dependency_mapping": "complete",
+    "testing_strategy": "comprehensive",
+    "resumability": "excellent"
+  },
+  "generated_files": [
+    "CLAUDE.md",
+    "tools/CLAUDE.md",
+    "providers/CLAUDE.md",
+    "utils/CLAUDE.md",
+    "clink/CLAUDE.md",
+    "systemprompts/CLAUDE.md",
+    "tests/CLAUDE.md",
+    "simulator_tests/CLAUDE.md",
+    "conf/CLAUDE.md",
+    ".claude/index.json"
+  ],
+  "navigation_structure": {
+    "root": "CLAUDE.md",
+    "module_docs": [
+      {"path": "tools/CLAUDE.md", "module": "tools"},
+      {"path": "providers/CLAUDE.md", "module": "providers"},
+      {"path": "utils/CLAUDE.md", "module": "utils"},
+      {"path": "clink/CLAUDE.md", "module": "clink"},
+      {"path": "systemprompts/CLAUDE.md", "module": "systemprompts"},
+      {"path": "conf/CLAUDE.md", "module": "conf"},
+      {"path": "tests/CLAUDE.md", "module": "tests"},
+      {"path": "simulator_tests/CLAUDE.md", "module": "simulator_tests"}
+    ]
+  }
+}

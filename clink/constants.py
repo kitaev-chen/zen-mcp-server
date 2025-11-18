@@ -45,4 +45,28 @@ INTERNAL_DEFAULTS: dict[str, CLIInternalDefaults] = {
         default_role_prompt="systemprompts/clink/default.txt",
         runner="claude",
     ),
+    "iflow": CLIInternalDefaults(
+        parser="iflow_plain",
+        additional_args=[],
+        default_role_prompt="systemprompts/clink/default.txt",
+        runner="iflow",
+    ),
+    "kimi": CLIInternalDefaults(
+        parser="kimi_plain",
+        additional_args=["--print", "--thinking"],
+        default_role_prompt="systemprompts/clink/default.txt",
+        runner="kimi",
+    ),
+    "qwen": CLIInternalDefaults(
+        parser="gemini_json",
+        additional_args=["--output-format", "json"],
+        default_role_prompt="systemprompts/clink/default.txt",
+        runner="qwen",
+    ),
+    "vecli": CLIInternalDefaults(
+        parser="vecli_plain",
+        additional_args=[],
+        default_role_prompt="systemprompts/clink/default.txt",
+        runner="vecli",
+    ),
 }

@@ -8,11 +8,19 @@ from .base import AgentOutput, BaseCLIAgent, CLIAgentError
 from .claude import ClaudeAgent
 from .codex import CodexAgent
 from .gemini import GeminiAgent
+from .iflow import IflowAgent
+from .kimi import KimiAgent
+from .qwen import QwenAgent
+from .vecli import VecliAgent
 
 _AGENTS: dict[str, type[BaseCLIAgent]] = {
     "gemini": GeminiAgent,
     "codex": CodexAgent,
     "claude": ClaudeAgent,
+    "iflow": IflowAgent,
+    "kimi": KimiAgent,
+    "qwen": QwenAgent,
+    "vecli": VecliAgent,
 }
 
 
