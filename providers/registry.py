@@ -42,6 +42,7 @@ class ModelProviderRegistry:
         ProviderType.XAI,  # Direct X.AI GROK access
         ProviderType.DIAL,  # DIAL unified API access
         ProviderType.CUSTOM,  # Local/self-hosted models
+        ProviderType.CLI,  # CLI agents via clink
         ProviderType.OPENROUTER,  # Catch-all for cloud models
     ]
 
@@ -95,6 +96,26 @@ class ModelProviderRegistry:
 
         # Get provider class or factory function
         provider_class = instance._providers[provider_type]
+
+        # Handle CLI provider (no API key required)
+        if provider_type == ProviderType.CLI:
+            # Check if any CLI clients are configured
+            try:
+                from clink import get_registry
+
+                clink_registry = get_registry()
+                if not clink_registry.list_clients():
+                    logging.debug("No CLI clients configured, skipping CLI provider")
+                    return None
+            except Exception as e:
+                logging.debug(f"Clink registry unavailable: {e}")
+                return None
+
+            from .cli import CLIModelProvider
+
+            provider = CLIModelProvider()
+            instance._initialized_providers[provider_type] = provider
+            return provider
 
         # For custom providers, handle special initialization requirements
         if provider_type == ProviderType.CUSTOM:
@@ -339,7 +360,12 @@ class ModelProviderRegistry:
             ProviderType.OPENROUTER: "OPENROUTER_API_KEY",
             ProviderType.CUSTOM: "CUSTOM_API_KEY",  # Can be empty for providers that don't need auth
             ProviderType.DIAL: "DIAL_API_KEY",
+            ProviderType.CLI: None,  # CLI provider doesn't need an API key
         }
+
+        # CLI provider doesn't need an API key - return a placeholder
+        if provider_type == ProviderType.CLI:
+            return "cli-enabled"
 
         env_var = key_mapping.get(provider_type)
         if not env_var:

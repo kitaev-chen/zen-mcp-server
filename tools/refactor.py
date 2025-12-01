@@ -161,6 +161,7 @@ class RefactorTool(WorkflowTool):
         return (
             "Analyzes code for refactoring opportunities with systematic investigation. "
             "Use for code smell detection, decomposition planning, modernization, and maintainability improvements. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured analysis with expert validation."
         )
 

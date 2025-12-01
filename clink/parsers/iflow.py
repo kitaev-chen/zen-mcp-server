@@ -41,6 +41,18 @@ class IflowPlainParser(BaseParser):
             content_lines.pop()
         
         content = "\n".join(content_lines).strip()
+
+        # Filter out known Windows system error messages from stdout
+        # These can appear at the beginning of iflow output on Windows
+        windows_noise_patterns = [
+            "The system cannot find the path specified",
+            "The system cannot find the file specified",
+        ]
+        for pattern in windows_noise_patterns:
+            if content.startswith(pattern):
+                # Remove the error line from the beginning
+                lines = content.split("\n", 1)
+                content = lines[1].strip() if len(lines) > 1 else ""
         
         if not content:
             raise ParserError("iflow CLI returned no content before execution info")

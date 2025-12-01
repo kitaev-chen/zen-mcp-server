@@ -140,6 +140,7 @@ class SecauditTool(WorkflowTool):
         return (
             "Performs comprehensive security audit with systematic vulnerability assessment. "
             "Use for OWASP Top 10 analysis, compliance evaluation, threat modeling, and security architecture review. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured security investigation with expert validation."
         )
 

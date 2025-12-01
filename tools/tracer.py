@@ -157,6 +157,7 @@ class TracerTool(WorkflowTool):
         return (
             "Performs systematic code tracing with modes for execution flow or dependency mapping. "
             "Use for method execution analysis, call chain tracing, dependency mapping, and architectural understanding. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Supports precision mode (execution flow) and dependencies mode (structural relationships)."
         )
 

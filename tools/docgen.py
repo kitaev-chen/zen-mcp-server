@@ -106,6 +106,7 @@ class DocgenTool(WorkflowTool):
         return (
             "Generates comprehensive code documentation with systematic analysis of functions, classes, and complexity. "
             "Use for documentation generation, code analysis, complexity assessment, and API documentation. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Analyzes code structure and patterns to create thorough documentation."
         )
 

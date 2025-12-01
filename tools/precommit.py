@@ -138,6 +138,7 @@ class PrecommitTool(WorkflowTool):
         return (
             "Validates git changes and repository state before committing with systematic analysis. "
             "Use for multi-repository validation, security review, change impact assessment, and completeness verification. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured investigation with expert analysis."
         )
 

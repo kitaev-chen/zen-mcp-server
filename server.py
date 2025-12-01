@@ -882,6 +882,7 @@ def parse_model_option(model_string: str) -> tuple[str, Optional[str]]:
     Parse model:option format into model name and option.
 
     Handles different formats:
+    - CLI models: preserve "cli:" prefix entirely (e.g., "cli:kimi" stays as-is)
     - OpenRouter models: preserve :free, :beta, :preview suffixes as part of model name
     - Ollama/Custom models: split on : to extract tags like :latest
     - Consensus stance: extract options like :for, :against
@@ -892,6 +893,10 @@ def parse_model_option(model_string: str) -> tuple[str, Optional[str]]:
     Returns:
         tuple: (model_name, option) where option may be None
     """
+    # CLI models use "cli:" prefix - preserve it entirely, don't split
+    if model_string.lower().startswith("cli:"):
+        return model_string.strip(), None
+
     if ":" in model_string and not model_string.startswith("http"):  # Avoid parsing URLs
         # Check if this looks like an OpenRouter model (contains /)
         if "/" in model_string and model_string.count(":") == 1:

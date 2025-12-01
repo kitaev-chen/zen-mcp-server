@@ -75,7 +75,9 @@ class ChatTool(SimpleTool):
     def get_description(self) -> str:
         return (
             "General chat and collaborative thinking partner for brainstorming, development discussion, "
-            "getting second opinions, and exploring ideas. Use for ideas, validations, questions, and thoughtful explanations."
+            "getting second opinions, and exploring ideas. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
+            "Use for ideas, validations, questions, and thoughtful explanations."
         )
 
     def get_annotations(self) -> Optional[dict[str, Any]]:

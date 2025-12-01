@@ -150,6 +150,7 @@ class ConsensusTool(WorkflowTool):
         return (
             "Builds multi-model consensus through systematic analysis and structured debate. "
             "Use for complex decisions, architectural choices, feature proposals, and technology evaluations. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Consults multiple models with different stances to synthesize comprehensive recommendations."
         )
 

@@ -121,6 +121,7 @@ class DebugIssueTool(WorkflowTool):
         return (
             "Performs systematic debugging and root cause analysis for any type of issue. "
             "Use for complex bugs, mysterious errors, performance issues, race conditions, memory leaks, and integration problems. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured investigation with hypothesis testing and expert analysis."
         )
 

@@ -137,6 +137,7 @@ class CodeReviewTool(WorkflowTool):
         return (
             "Performs systematic, step-by-step code review with expert validation. "
             "Use for comprehensive analysis covering quality, security, performance, and architecture. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured investigation to ensure thoroughness."
         )
 

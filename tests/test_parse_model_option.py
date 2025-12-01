@@ -77,3 +77,28 @@ class TestParseModelOption:
         model, option = parse_model_option("openai/gpt-3.5-turbo:Free")
         assert model == "openai/gpt-3.5-turbo:Free"  # Original case preserved
         assert option is None
+
+    def test_cli_model_prefix_preserved(self):
+        """Test that CLI model prefix is preserved entirely and not split."""
+        # cli:kimi should NOT be split into 'cli' and 'kimi'
+        model, option = parse_model_option("cli:kimi")
+        assert model == "cli:kimi"
+        assert option is None
+
+        model, option = parse_model_option("cli:gemini")
+        assert model == "cli:gemini"
+        assert option is None
+
+        model, option = parse_model_option("cli:claude")
+        assert model == "cli:claude"
+        assert option is None
+
+    def test_cli_model_case_insensitive(self):
+        """Test that CLI prefix detection is case-insensitive."""
+        model, option = parse_model_option("CLI:kimi")
+        assert model == "CLI:kimi"
+        assert option is None
+
+        model, option = parse_model_option("Cli:Gemini")
+        assert model == "Cli:Gemini"
+        assert option is None

@@ -106,6 +106,8 @@ class ThinkDeepTool(WorkflowTool):
     description = (
         "Performs multi-stage investigation and reasoning for complex problem analysis. "
         "Use for architecture decisions, complex bugs, performance challenges, and security analysis. "
+        "⚠️ MODEL FORMAT: When user says 'kimi cli', use model='cli:kimi' or 'kcli' (NOT 'kimi'). "
+        "CLI models require 'cli:' prefix or '-cli' suffix: gcli, kcli, ocli, icli, qcli, vcli. "
         "Provides systematic hypothesis testing, evidence-based investigation, and expert validation."
     )
 

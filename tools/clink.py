@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,10 +20,29 @@ from tools.models import ToolModelCategory, ToolOutput
 from tools.shared.base_models import COMMON_FIELD_DESCRIPTIONS
 from tools.shared.exceptions import ToolExecutionError
 from tools.simple.base import SchemaBuilder, SimpleTool
+from utils import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
-MAX_RESPONSE_CHARS = 20_000
+# Token-based limit for MCP response safety
+# Default MCP limit is 25K tokens; we use 80% to leave room for request overhead
+MAX_RESPONSE_TOKENS = 20_000
+MAX_RESPONSE_CHARS = 80_000  # Fallback character limit (~20K tokens for mixed content)
+
+# Large fields to remove from metadata to prevent token overflow
+# These fields from various parsers can contain massive data:
+# - raw_stdout: vecli, kimi, iflow parsers store full stdout
+# - raw: gemini, claude parsers store full JSON payload
+# - raw_output_file: base agent stores output file content
+# - thinking_content: kimi parser stores thinking process
+# - events: codex parser stores all JSONL events
+LARGE_METADATA_FIELDS = [
+    "raw_stdout",
+    "raw_output_file",
+    "raw",  # gemini.py, claude.py store full payload here
+    "thinking_content",
+    "events",
+]
 SUMMARY_PATTERN = re.compile(r"<SUMMARY>(.*?)</SUMMARY>", re.IGNORECASE | re.DOTALL)
 
 
@@ -336,65 +356,142 @@ class CLinkTool(SimpleTool):
         content: str,
         metadata: dict[str, Any],
     ) -> tuple[str, dict[str, Any]]:
-        if len(content) <= MAX_RESPONSE_CHARS:
+        """Apply token-aware output limiting with file fallback for large outputs."""
+        estimated_tokens = estimate_tokens(content)
+        
+        # Check if within token limit
+        if estimated_tokens <= MAX_RESPONSE_TOKENS:
             return content, metadata
+        
+        logger.info(
+            "Clink output from %s exceeds token limit: %d tokens > %d limit",
+            client.name,
+            estimated_tokens,
+            MAX_RESPONSE_TOKENS,
+        )
 
+        # Strategy 1: Try to extract and return summary
         summary = self._extract_summary(content)
         if summary:
-            summary_text = summary
-            if len(summary_text) > MAX_RESPONSE_CHARS:
-                logger.debug(
-                    "Clink summary from %s exceeded %d chars; truncating summary to fit.",
-                    client.name,
-                    MAX_RESPONSE_CHARS,
+            summary_tokens = estimate_tokens(summary)
+            if summary_tokens <= MAX_RESPONSE_TOKENS:
+                summary_metadata = self._prune_metadata(metadata, client, reason="summary")
+                summary_metadata.update(
+                    {
+                        "output_summarized": True,
+                        "output_original_tokens": estimated_tokens,
+                        "output_summary_tokens": summary_tokens,
+                        "output_token_limit": MAX_RESPONSE_TOKENS,
+                    }
                 )
-                summary_text = summary_text[:MAX_RESPONSE_CHARS]
-            summary_metadata = self._prune_metadata(metadata, client, reason="summary")
-            summary_metadata.update(
+                logger.info(
+                    "Clink compressed %s output via <SUMMARY>: original=%d tokens, summary=%d tokens",
+                    client.name,
+                    estimated_tokens,
+                    summary_tokens,
+                )
+                return summary, summary_metadata
+
+        # Strategy 2: Save full output to file and return summary + file path
+        file_path = self._save_large_output_to_file(client, content)
+        if file_path:
+            # Build a useful response with file reference
+            preview_tokens = MAX_RESPONSE_TOKENS // 4  # Use 25% for preview
+            preview_chars = preview_tokens * 4  # Rough char estimate
+            preview = content[:preview_chars]
+            
+            file_message = (
+                f"\n\n--- LARGE OUTPUT SAVED TO FILE ---\n"
+                f"Full output ({estimated_tokens:,} tokens) saved to: {file_path}\n"
+                f"Read with: type \"{file_path}\" (Windows) or cat \"{file_path}\" (Unix)\n"
+                f"--- END NOTICE ---\n\n"
+                f"--- Preview (first {len(preview):,} chars) ---\n{preview}\n--- End Preview ---"
+            )
+            
+            file_metadata = self._prune_metadata(metadata, client, reason="file_output")
+            file_metadata.update(
                 {
-                    "output_summarized": True,
-                    "output_original_length": len(content),
-                    "output_summary_length": len(summary_text),
-                    "output_limit": MAX_RESPONSE_CHARS,
+                    "output_to_file": True,
+                    "output_file_path": str(file_path),
+                    "output_original_tokens": estimated_tokens,
+                    "output_token_limit": MAX_RESPONSE_TOKENS,
                 }
             )
             logger.info(
-                "Clink compressed %s output via <SUMMARY>: original=%d chars, summary=%d chars",
+                "Clink saved %s large output to file: %s (%d tokens)",
                 client.name,
-                len(content),
-                len(summary_text),
+                file_path,
+                estimated_tokens,
             )
-            return summary_text, summary_metadata
+            return file_message, file_metadata
 
+        # Strategy 3: Fallback to smart truncation (keep beginning and end)
+        return self._smart_truncate(client, content, estimated_tokens, metadata)
+
+    def _save_large_output_to_file(self, client: ResolvedCLIClient, content: str) -> Path | None:
+        """Save large output to a file and return the path."""
+        try:
+            output_dir = Path("logs") / "clink_outputs"
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            unique_id = uuid.uuid4().hex[:8]
+            filename = f"clink_{client.name}_{timestamp}_{unique_id}.txt"
+            output_path = output_dir / filename
+            
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            
+            return output_path.resolve()
+        except Exception as e:
+            logger.warning("Failed to save clink output to file: %s", e)
+            return None
+
+    def _smart_truncate(
+        self,
+        client: ResolvedCLIClient,
+        content: str,
+        estimated_tokens: int,
+        metadata: dict[str, Any],
+    ) -> tuple[str, dict[str, Any]]:
+        """Smart truncation: keep beginning and end, skip middle."""
+        # Calculate how much we can keep (target 80% of limit for safety)
+        target_tokens = int(MAX_RESPONSE_TOKENS * 0.8)
+        chars_per_token = len(content) / max(estimated_tokens, 1)
+        target_chars = int(target_tokens * chars_per_token)
+        
+        # Keep 60% from start, 30% from end
+        start_chars = int(target_chars * 0.6)
+        end_chars = int(target_chars * 0.3)
+        
+        start_text = content[:start_chars]
+        end_text = content[-end_chars:] if end_chars > 0 else ""
+        
+        omitted_tokens = estimated_tokens - target_tokens
+        truncated_content = (
+            f"{start_text}\n\n"
+            f"[... {omitted_tokens:,} tokens omitted ...]\n\n"
+            f"{end_text}"
+        )
+        
         truncated_metadata = self._prune_metadata(metadata, client, reason="truncated")
         truncated_metadata.update(
             {
                 "output_truncated": True,
-                "output_original_length": len(content),
-                "output_limit": MAX_RESPONSE_CHARS,
+                "output_original_tokens": estimated_tokens,
+                "output_truncated_tokens": estimate_tokens(truncated_content),
+                "output_token_limit": MAX_RESPONSE_TOKENS,
             }
         )
-
-        excerpt_limit = min(4000, MAX_RESPONSE_CHARS // 2)
-        excerpt = content[:excerpt_limit]
-        truncated_metadata["output_excerpt_length"] = len(excerpt)
-
+        
         logger.warning(
-            "Clink truncated %s output: original=%d chars exceeds limit=%d; excerpt_length=%d",
+            "Clink smart-truncated %s output: %d -> ~%d tokens",
             client.name,
-            len(content),
-            MAX_RESPONSE_CHARS,
-            len(excerpt),
+            estimated_tokens,
+            target_tokens,
         )
-
-        message = (
-            f"CLI '{client.name}' produced {len(content)} characters, exceeding the configured clink limit "
-            f"({MAX_RESPONSE_CHARS} characters). The full output was suppressed to stay within MCP response caps. "
-            "Please narrow the request (review fewer files, summarize results) or run the CLI directly for the full log.\n\n"
-            f"--- Begin excerpt ({len(excerpt)} of {len(content)} chars) ---\n{excerpt}\n--- End excerpt ---"
-        )
-
-        return message, truncated_metadata
+        
+        return truncated_content, truncated_metadata
 
     def _extract_summary(self, content: str) -> str | None:
         match = SUMMARY_PATTERN.search(content)
@@ -410,16 +507,25 @@ class CLinkTool(SimpleTool):
         *,
         reason: str,
     ) -> dict[str, Any]:
+        """Remove large fields from metadata to prevent token overflow."""
         cleaned = dict(metadata)
-        events = cleaned.pop("events", None)
-        if events is not None:
-            cleaned[f"events_removed_for_{reason}"] = True
+        removed_fields = []
+        
+        for field in LARGE_METADATA_FIELDS:
+            if field in cleaned:
+                cleaned.pop(field)
+                removed_fields.append(field)
+        
+        if removed_fields:
+            cleaned[f"fields_removed_for_{reason}"] = removed_fields
             logger.debug(
-                "Clink dropped %s events metadata for %s response (%s)",
+                "Clink pruned %d large metadata fields for %s (%s): %s",
+                len(removed_fields),
                 client.name,
                 reason,
-                type(events).__name__,
+                removed_fields,
             )
+        
         return cleaned
 
     def _build_error_metadata(self, client: ResolvedCLIClient, exc: CLIAgentError) -> dict[str, Any]:

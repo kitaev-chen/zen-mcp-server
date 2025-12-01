@@ -2,12 +2,13 @@
 
 from .azure_openai import AzureOpenAIProvider
 from .base import ModelProvider
+from .cli import CLIModelProvider
 from .gemini import GeminiModelProvider
 from .openai import OpenAIModelProvider
 from .openai_compatible import OpenAICompatibleProvider
 from .openrouter import OpenRouterProvider
 from .registry import ModelProviderRegistry
-from .shared import ModelCapabilities, ModelResponse
+from .shared import ModelCapabilities, ModelResponse, ProviderType
 
 __all__ = [
     "ModelProvider",
@@ -15,8 +16,12 @@ __all__ = [
     "ModelCapabilities",
     "ModelProviderRegistry",
     "AzureOpenAIProvider",
+    "CLIModelProvider",
     "GeminiModelProvider",
     "OpenAIModelProvider",
     "OpenAICompatibleProvider",
     "OpenRouterProvider",
 ]
+
+# Register CLI provider
+ModelProviderRegistry.register_provider(ProviderType.CLI, CLIModelProvider)

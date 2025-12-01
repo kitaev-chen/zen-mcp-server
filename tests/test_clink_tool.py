@@ -5,7 +5,7 @@ import pytest
 from clink import get_registry
 from clink.agents import AgentOutput
 from clink.parsers.base import ParsedCLIResponse
-from tools.clink import MAX_RESPONSE_CHARS, CLinkTool
+from tools.clink import MAX_RESPONSE_TOKENS, CLinkTool
 
 
 @pytest.mark.asyncio
@@ -93,7 +93,8 @@ async def test_clink_tool_defaults_to_first_cli(monkeypatch):
     payload = json.loads(result[0].text)
     metadata = payload.get("metadata", {})
     assert metadata.get("cli_name") == tool._default_cli_name
-    assert metadata.get("events_removed_for_normal") is True
+    # events field should be removed and noted in fields_removed_for_normal
+    assert "events" in metadata.get("fields_removed_for_normal", [])
 
 
 @pytest.mark.asyncio
@@ -101,7 +102,8 @@ async def test_clink_tool_truncates_large_output(monkeypatch):
     tool = CLinkTool()
 
     summary_section = "<SUMMARY>This is the condensed summary.</SUMMARY>"
-    long_text = "A" * (MAX_RESPONSE_CHARS + 500) + summary_section
+    # Generate content that exceeds MAX_RESPONSE_TOKENS (~20K tokens = ~80K chars)
+    long_text = "A" * 85000 + summary_section
 
     async def fake_run(**kwargs):
         return AgentOutput(
@@ -134,15 +136,18 @@ async def test_clink_tool_truncates_large_output(monkeypatch):
     assert payload["content"].strip() == "This is the condensed summary."
     metadata = payload.get("metadata", {})
     assert metadata.get("output_summarized") is True
-    assert metadata.get("events_removed_for_normal") is True
-    assert metadata.get("output_original_length") == len(long_text)
+    # events field should be removed (either in normal or summary phase)
+    all_removed = metadata.get("fields_removed_for_normal", []) + metadata.get("fields_removed_for_summary", [])
+    assert "events" in all_removed
+    assert metadata.get("output_original_tokens") is not None
 
 
 @pytest.mark.asyncio
 async def test_clink_tool_truncates_without_summary(monkeypatch):
     tool = CLinkTool()
 
-    long_text = "B" * (MAX_RESPONSE_CHARS + 1000)
+    # Generate content that exceeds MAX_RESPONSE_TOKENS without summary
+    long_text = "B" * 85000
 
     async def fake_run(**kwargs):
         return AgentOutput(
@@ -172,8 +177,15 @@ async def test_clink_tool_truncates_without_summary(monkeypatch):
     result = await tool.execute(arguments)
     payload = json.loads(result[0].text)
     assert payload["status"] in {"success", "continuation_available"}
-    assert "exceeding the configured clink limit" in payload["content"]
+    # Large output should be saved to file or smart-truncated
     metadata = payload.get("metadata", {})
-    assert metadata.get("output_truncated") is True
-    assert metadata.get("events_removed_for_normal") is True
-    assert metadata.get("output_original_length") == len(long_text)
+    # Either saved to file or truncated
+    assert metadata.get("output_to_file") is True or metadata.get("output_truncated") is True
+    assert metadata.get("output_original_tokens") is not None
+    # events field should be removed (either in normal, file_output, or truncated phase)
+    all_removed = (
+        metadata.get("fields_removed_for_normal", []) +
+        metadata.get("fields_removed_for_file_output", []) +
+        metadata.get("fields_removed_for_truncated", [])
+    )
+    assert "events" in all_removed

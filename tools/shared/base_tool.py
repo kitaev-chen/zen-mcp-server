@@ -495,6 +495,42 @@ class BaseTool(ABC):
 
         return "Policy allows only → " + "; ".join(notes)
 
+    def _get_cli_suggestion(self, model_name: str) -> str | None:
+        """Check if the model name might be a CLI model and suggest correct format.
+
+        Args:
+            model_name: The model name that failed validation
+
+        Returns:
+            Suggestion string if CLI model detected, None otherwise
+        """
+        # Known CLI base names and their correct formats
+        cli_mappings = {
+            "kimi": ("cli:kimi", "kcli", "kimi cli"),
+            "gemini": ("cli:gemini", "gcli", "gemini cli"),
+            "claude": ("cli:claude", "ccli", "claude cli"),
+            "codex": ("cli:codex", "ocli", "codex cli"),
+            "iflow": ("cli:iflow", "icli", "iflow cli"),
+            "qwen": ("cli:qwen", "qcli", "qwen cli"),
+            "vecli": ("cli:vecli", "vcli", "doubao cli"),
+            "doubao": ("cli:vecli", "vcli", "doubao cli"),
+            "openai": ("cli:codex", "ocli", "openai cli"),
+            "moonshot": ("cli:kimi", "kcli", "moonshot cli"),
+            "tongyi": ("cli:qwen", "qcli", "tongyi cli"),
+        }
+
+        model_lower = model_name.lower().strip()
+
+        # Check if the model name matches any known CLI base name
+        for base_name, (cli_format, short_alias, long_alias) in cli_mappings.items():
+            if model_lower == base_name:
+                return (
+                    f"⚠️ Did you mean CLI model? Use model='{cli_format}' or '{short_alias}' or '{long_alias}' "
+                    f"instead of '{model_name}'."
+                )
+
+        return None
+
     def _build_model_unavailable_message(self, model_name: str) -> str:
         """Compose a consistent error message for unavailable model scenarios."""
 
@@ -502,12 +538,20 @@ class BaseTool(ABC):
         suggested_model = ModelProviderRegistry.get_preferred_fallback_model(tool_category)
         available_models_text = self._format_available_models_list()
 
-        return (
+        # Check if user might have meant a CLI model
+        cli_suggestion = self._get_cli_suggestion(model_name)
+
+        base_message = (
             f"Model '{model_name}' is not available with current API keys. "
             f"Available models: {available_models_text}. "
             f"Suggested model for {self.get_name()}: '{suggested_model}' "
-            f"(category: {tool_category.value}). If the user explicitly requested a model, you MUST use that exact name or report this error back—do not substitute another model."
+            f"(category: {tool_category.value})."
         )
+
+        if cli_suggestion:
+            return f"{base_message} {cli_suggestion} If the user explicitly requested a model, you MUST use that exact name or report this error back—do not substitute another model."
+
+        return f"{base_message} If the user explicitly requested a model, you MUST use that exact name or report this error back—do not substitute another model."
 
     def _build_auto_mode_required_message(self) -> str:
         """Compose the auto-mode prompt when an explicit model selection is required."""
@@ -537,10 +581,22 @@ class BaseTool(ABC):
         from config import DEFAULT_MODEL
 
         # Use the centralized effective auto mode check
+        # CLI models note - only trigger when user EXPLICITLY says "CLI"
+        # API models (gemini-2.5-pro, gpt-5, etc.) remain the default
+        cli_note = (
+            "⚠️ CLI MODEL FORMAT: When user says 'xxx cli' or 'xxx-cli' or short alias, "
+            "pass the EXACT format: 'kimi cli'/'kimi-cli'/'kcli'→model='cli:kimi' or 'kcli'; "
+            "'gemini cli'/'gemini-cli'/'gcli'→'cli:gemini'/'gcli'; "
+            "'iflow cli'/'iflow-cli'/'icli'→'cli:iflow'/'icli'. "
+            "WARNING: Plain 'kimi'/'gemini'/'iflow' WITHOUT 'cli' are API models and will FAIL if no API key. "
+            "Valid CLI short aliases: ccli, gcli, ocli, kcli, icli, qcli, vcli."
+        )
+
         if self.is_effective_auto_mode():
             description = (
                 "Currently in auto model selection mode. CRITICAL: When the user names a model, you MUST use that exact name unless the server rejects it. "
-                "If no model is provided, you may use the `listmodels` tool to review options and select an appropriate match."
+                "If no model is provided, you may use the `listmodels` tool to review options and select an appropriate match. "
+                f"{cli_note}"
             )
             summaries, total, restricted = self._get_ranked_model_summaries()
             remainder = max(0, total - len(summaries))
@@ -564,7 +620,8 @@ class BaseTool(ABC):
 
         description = (
             f"The default model is '{DEFAULT_MODEL}'. Override only when the user explicitly requests a different model, and use that exact name. "
-            "If the requested model fails validation, surface the server error instead of substituting another model. When unsure, use the `listmodels` tool for details."
+            "If the requested model fails validation, surface the server error instead of substituting another model. When unsure, use the `listmodels` tool for details. "
+            f"{cli_note}"
         )
         summaries, total, restricted = self._get_ranked_model_summaries()
         remainder = max(0, total - len(summaries))

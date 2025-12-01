@@ -152,6 +152,7 @@ class AnalyzeTool(WorkflowTool):
         return (
             "Performs comprehensive code analysis with systematic investigation and expert validation. "
             "Use for architecture, performance, maintainability, and pattern analysis. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Guides through structured code review and strategic planning."
         )
 

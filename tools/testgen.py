@@ -115,6 +115,7 @@ class TestGenTool(WorkflowTool):
         return (
             "Creates comprehensive test suites with edge case coverage for specific functions, classes, or modules. "
             "Analyzes code paths, identifies failure modes, and generates framework-specific tests. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Be specific about scope - target particular components rather than testing everything."
         )
 

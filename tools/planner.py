@@ -130,6 +130,7 @@ class PlannerTool(WorkflowTool):
         return (
             "Breaks down complex tasks through interactive, sequential planning with revision and branching capabilities. "
             "Use for complex project planning, system design, migration strategies, and architectural decisions. "
+            "Model: API by default; CLI ONLY when user says 'CLI' (e.g., 'kimi cli'→'cli:kimi'). "
             "Builds plans incrementally with deep reflection for complex scenarios."
         )
 
