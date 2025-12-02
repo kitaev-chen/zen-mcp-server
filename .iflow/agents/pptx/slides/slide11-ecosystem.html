@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 25pt; padding: 25pt; background: #FFFFFF;
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 26pt; margin-bottom: 15pt;
+  text-align: center;
+}
+.ecosystem {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18pt;
+  height: 340pt;
+}
+.platform {
+  background: #F8F9FA; border-radius: 10pt; padding: 15pt;
+  border: 2px solid #B165FB; position: relative;
+  overflow: hidden;
+}
+.platform::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4pt; background: linear-gradient(90deg, #B165FB, #40695B);
+}
+.platform-title {
+  font-size: 14pt; font-weight: bold; color: #B165FB;
+  margin-bottom: 12pt; text-align: center;
+}
+.platform-logos {
+  display: flex; flex-wrap: wrap; gap: 8pt; margin-bottom: 15pt;
+  justify-content: center;
+}
+.logo {
+  background: #FFFFFF; border: 1px solid #DDD; border-radius: 6pt;
+  padding: 6pt 10pt; font-size: 10pt; font-weight: bold;
+  color: #555; box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+.claude { background: linear-gradient(135deg, #D97706, #F59E0B); color: #FFFFFF; }
+.openai { background: linear-gradient(135deg, #059669, #10B981); color: #FFFFFF; }
+.gemini { background: linear-gradient(135deg, #3B82F6, #60A5FA); color: #FFFFFF; }
+.cursor { background: linear-gradient(135deg, #8B5CF6, #A78BFA); color: #FFFFFF; }
+.vscode { background: #007ACC; color: #FFFFFF; }
+.ollama { background: #18181B; color: #FFFFFF; }
+.azure { background: #0078D4; color: #FFFFFF; }
+.openrouter { background: #1F2937; color: #FFFFFF; }
+
+.platform-desc {
+  font-size: 10pt; line-height: 1.4; color: #666;
+  margin-bottom: 12pt;
+}
+.integration-steps {
+  background: #F0F9FF; border-radius: 6pt; padding: 10pt;
+  border: 1px solid #0EA5E9;
+}
+.step-title {
+  font-size: 10pt; font-weight: bold; color: #0EA5E9; margin-bottom: 6pt;
+}
+.step-item {
+  font-size: 9pt; margin-bottom: 4pt; color: #333;
+}
+.step-item::before {
+  content: '• '; color: #0EA5E9; font-weight: bold;
+}
+.highlight-box {
+  background: linear-gradient(135deg, #40695B 0%, #B165FB 100%);
+  color: #FFFFFF; padding: 12pt; border-radius: 8pt;
+  margin-top: 15pt; text-align: center; font-size: 10pt;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>生态系统与平台集成</h1>
+  <div class="ecosystem">
+    <div class="platform">
+      <div class="platform-title">💻 CLI 工具</div>
+      <div class="platform-logos">
+        <div class="logo claude">Claude Code</div>
+        <div class="logo gemini">Gemini CLI</div>
+        <div class="logo openai">Codex CLI</div>
+        <div class="logo openai">Qwen CLI</div>
+      </div>
+      <div class="platform-desc">
+        原生支持主流 AI CLI 工具，通过 MCP 协议无缝集成
+      </div>
+      <div class="integration-steps">
+        <div class="step-title">集成方式：</div>
+        <div class="step-item">MCP 服务器注册</div>
+        <div class="step-item">环境变量配置</div>
+        <div class="step-item">工具自动发现</div>
+        <div class="step-item">上下文管理</div>
+      </div>
+    </div>
+    <div class="platform">
+      <div class="platform-title">🛠️ IDE 集成</div>
+      <div class="platform-logos">
+        <div class="logo cursor">Cursor</div>
+        <div class="logo vscode">VS Code</div>
+        <div class="logo azure">JetBrains</div>
+      </div>
+      <div class="platform-desc">
+        IDE 扩展和插件支持，在编辑器内直接使用多模型协作
+      </div>
+      <div class="integration-steps">
+        <div class="step-title">集成方式：</div>
+        <div class="step-item">扩展商店安装</div>
+        <div class="step-item">工作区配置</div>
+        <div class="step-item">快捷键触发</div>
+        <div class="step-item">内嵌对话窗口</div>
+      </div>
+    </div>
+    <div class="platform">
+      <div class="platform-title">☁️ 云平台</div>
+      <div class="platform-logos">
+        <div class="logo azure">Azure OpenAI</div>
+        <div class="logo openrouter">OpenRouter</div>
+        <div class="logo ollama">Ollama Cloud</div>
+      </div>
+      <div class="platform-desc">
+        支持企业级部署，云原生架构，高可用性保障
+      </div>
+      <div class="integration-steps">
+        <div class="step-title">部署方式：</div>
+        <div class="step-item">Docker 容器化</div>
+        <div class="step-item">K8s 编排</div>
+        <div class="step-item">服务网格</div>
+        <div class="step-item">CI/CD 集成</div>
+      </div>
+    </div>
+  </div>
+  <div class="highlight-box">
+    🚀 支持热插拔：随时添加新模型、新工具，无需重启系统
+  </div>
+</div>
+</body>
+</html>

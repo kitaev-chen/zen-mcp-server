@@ -56,11 +56,13 @@ from tools import (  # noqa: E402
     ConsensusTool,
     DebugIssueTool,
     DocgenTool,
+    IndexCodeTool,
     ListModelsTool,
     LookupTool,
     PlannerTool,
     PrecommitTool,
     RefactorTool,
+    SearchCodeTool,
     SecauditTool,
     TestGenTool,
     ThinkDeepTool,
@@ -275,6 +277,8 @@ TOOLS = {
     "testgen": TestGenTool(),  # Step-by-step test generation workflow with expert validation
     "challenge": ChallengeTool(),  # Critical challenge prompt wrapper to avoid automatic agreement
     "apilookup": LookupTool(),  # Quick web/API lookup instructions
+    "index_code": IndexCodeTool(),  # Index code files for semantic search
+    "search_code": SearchCodeTool(),  # Semantic search across indexed codebase
     "listmodels": ListModelsTool(),  # List all available AI models by provider
     "version": VersionTool(),  # Display server version and system information
 }

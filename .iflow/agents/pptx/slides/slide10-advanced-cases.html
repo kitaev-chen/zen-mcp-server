@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 25pt; background: #FFFFFF;
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 28pt; margin-bottom: 15pt;
+  text-align: center;
+}
+.use-cases {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20pt;
+  height: 320pt;
+}
+.use-case {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: #FFFFFF; border-radius: 12pt; padding: 20pt;
+  position: relative; overflow: hidden;
+}
+.use-case::before {
+  content: ''; position: absolute; top: -50%; right: -50%;
+  width: 100%; height: 100%; background: rgba(255,255,255,0.1);
+  transform: rotate(45deg);
+}
+.case-title {
+  font-size: 16pt; font-weight: bold; margin-bottom: 12pt;
+  position: relative; z-index: 1;
+}
+.case-scenario {
+  background: rgba(255,255,255,0.2); padding: 10pt; border-radius: 6pt;
+  margin-bottom: 12pt; font-size: 11pt; line-height: 1.4;
+  position: relative; z-index: 1;
+}
+.workflow {
+  position: relative; z-index: 1;
+}
+.workflow-title {
+  font-size: 12pt; font-weight: bold; margin-bottom: 8pt; color: #F1C40F;
+}
+.workflow-steps {
+  font-size: 10pt; line-height: 1.4;
+}
+.step {
+  margin-bottom: 5pt; padding: 5pt 8pt; background: rgba(255,255,255,0.15);
+  border-radius: 4pt;
+}
+.step::before {
+  content: '→ '; color: #F1C40F; font-weight: bold;
+}
+.benefits {
+  position: relative; z-index: 1;
+  background: rgba(241,196,15,0.2); padding: 8pt; border-radius: 6pt;
+  margin-top: 10pt; font-size: 9pt;
+}
+.benefit-title {
+  font-weight: bold; margin-bottom: 5pt;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>高级用例与复杂工作流</h1>
+  <div class="use-cases">
+    <div class="use-case">
+      <div class="case-title">🏗️ 大型系统重构</div>
+      <div class="case-scenario">
+        <strong>场景：</strong>微服务架构迁移，需要评估、规划、实施、测试全流程
+      </div>
+      <div class="workflow">
+        <div class="workflow-title">工作流：</div>
+        <div class="workflow-steps">
+          <div class="step">consensus: 架构决策讨论 (gpt-5 + gemini-pro)</div>
+          <div class="step">analyze: 现有架构分析 + 依赖映射</div>
+          <div class="step">planner: 分阶段迁移计划制定</div>
+          <div class="step">refactor: 分步实施迁移代码</div>
+          <div class="step">testgen: 测试用例生成</div>
+          <div class="step">precommit: 变更验证</div>
+        </div>
+      </div>
+      <div class="benefits">
+        <div class="benefit-title">💡 价值：</div>
+        避免单模型偏见，确保迁移方案的科学性和完整性
+      </div>
+    </div>
+    <div class="use-case">
+      <div class="case-title">🔒 企业安全审计</div>
+      <div class="case-scenario">
+        <strong>场景：</strong>完整的应用安全评估，需要 OWASP Top 10 检查和深度渗透测试
+      </div>
+      <div class="workflow">
+        <div class="workflow-title">工作流：</div>
+        <div class="workflow-steps">
+          <div class="step">secaudit: OWASP Top 10 自动化扫描</div>
+          <div class="step">tracer: 代码执行路径分析</div>
+          <div class="step">thinkdeep: 高级威胁建模</div>
+          <div class="step">consensus: 多模型安全评估</div>
+          <div class="step">codereview: 安全代码审查</div>
+          <div class="step">docgen: 安全报告生成</div>
+        </div>
+      </div>
+      <div class="benefits">
+        <div class="benefit-title">💡 价值：</div>
+        多模型协同发现单模型可能遗漏的安全漏洞
+      </div>
+    </div>
+    <div class="use-case">
+      <div class="case-title">🧪 实验性 AI 特性开发</div>
+      <div class="case-scenario">
+        <strong>场景：</strong>研究性项目，需要快速迭代、技术评估、用户反馈收集
+      </div>
+      <div class="workflow">
+        <div class="workflow-title">工作流：</div>
+        <div class="workflow-steps">
+          <div class="step">chat: 技术选型讨论 (o3 reasoning)</div>
+          <div class="step">clink: 外部工具集成分析</div>
+          <div class="step">thinkdeep: 风险评估</div>
+          <div class="step">debug: 快速原型调试</div>
+          <div class="step">analyze: 性能优化建议</div>
+          <div class="step">consensus: 多模型验证</div>
+        </div>
+      </div>
+      <div class="benefits">
+        <div class="benefit-title">💡 价值：</div>
+        利用不同模型专长，加速创新实验和风险控制
+      </div>
+    </div>
+    <div class="use-case">
+      <div class="case-title">📊 数据科学项目协作</div>
+      <div class="case-scenario">
+        <strong>场景：</strong>复杂数据分析项目，需要统计建模、结果验证、业务理解
+      </div>
+      <div class="workflow">
+        <div class="workflow-title">工作流：</div>
+        <div class="workflow-steps">
+          <div class="step">thinkdeep: 数据探索策略规划</div>
+          <div class="step">chat: 统计方法选择 (gemini-pro)</div>
+          <div class="step">analyze: 代码质量评估</div>
+          <div class="step">testgen: 模型验证测试</div>
+          <div class="step">consensus: 结果解释验证</div>
+          <div class="step">docgen: 可视化报告</div>
+        </div>
+      </div>
+      <div class="benefits">
+        <div class="benefit-title">💡 价值：</div>
+        结合统计分析、编程实现、业务洞察的专业协作
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

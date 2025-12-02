@@ -11,10 +11,12 @@ from .codereview import CodeReviewTool
 from .consensus import ConsensusTool
 from .debug import DebugIssueTool
 from .docgen import DocgenTool
+from .index_code import IndexCodeTool
 from .listmodels import ListModelsTool
 from .planner import PlannerTool
 from .precommit import PrecommitTool
 from .refactor import RefactorTool
+from .search_code import SearchCodeTool
 from .secaudit import SecauditTool
 from .testgen import TestGenTool
 from .thinkdeep import ThinkDeepTool
@@ -22,22 +24,24 @@ from .tracer import TracerTool
 from .version import VersionTool
 
 __all__ = [
-    "ThinkDeepTool",
-    "CodeReviewTool",
-    "DebugIssueTool",
-    "DocgenTool",
     "AnalyzeTool",
-    "LookupTool",
+    "ChallengeTool",
     "ChatTool",
     "CLinkTool",
+    "CodeReviewTool",
     "ConsensusTool",
+    "DebugIssueTool",
+    "DocgenTool",
+    "IndexCodeTool",
     "ListModelsTool",
+    "LookupTool",
     "PlannerTool",
     "PrecommitTool",
-    "ChallengeTool",
     "RefactorTool",
+    "SearchCodeTool",
     "SecauditTool",
     "TestGenTool",
+    "ThinkDeepTool",
     "TracerTool",
     "VersionTool",
 ]

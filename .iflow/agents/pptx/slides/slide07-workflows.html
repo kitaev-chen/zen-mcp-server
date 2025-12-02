@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 30pt; background: #FFFFFF;
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 28pt; margin-bottom: 20pt;
+  text-align: center;
+}
+.workflows {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 25pt;
+  height: 320pt;
+}
+.workflow {
+  background: #F8F9FA; border-radius: 12pt; padding: 20pt;
+  border: 2px solid #B165FB; position: relative;
+}
+.workflow-title {
+  font-size: 16pt; font-weight: bold; color: #B165FB;
+  margin-bottom: 15pt; text-align: center;
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: #FFFFFF; padding: 8pt; border-radius: 6pt;
+}
+.workflow-step {
+  margin-bottom: 12pt; padding: 8pt; background: #FFFFFF;
+  border-radius: 6pt; border-left: 4px solid #40695B;
+  font-size: 11pt; line-height: 1.4;
+}
+.step-number {
+  color: #B165FB; font-weight: bold; margin-right: 8pt;
+}
+.workflow-arrow {
+  text-align: center; color: #40695B; font-size: 16pt; font-weight: bold;
+  margin: 8pt 0;
+}
+.result {
+  background: linear-gradient(135deg, #40695B 0%, #B165FB 100%);
+  color: #FFFFFF; padding: 10pt; border-radius: 6pt; text-align: center;
+  font-size: 10pt; font-weight: bold; margin-top: 10pt;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>实际工作流程示例</h1>
+  <div class="workflows">
+    <div class="workflow">
+      <div class="workflow-title">🔍 多模型代码审查</div>
+      <div class="workflow-step">
+        <span class="step-number">1.</span>
+        Claude Code 系统性代码审查
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">2.</span>
+        Gemini Pro 深度分析第二视角
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">3.</span>
+        O3 推理验证和补充发现
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">4.</span>
+        Planner 生成统一修复计划
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">5.</span>
+        Claude 实现修复并 PreCommit 验证
+      </div>
+      <div class="result">
+        完整审查报告 + 修复实现 + 质量验证
+      </div>
+    </div>
+    <div class="workflow">
+      <div class="workflow-title">🧠 协作调试流程</div>
+      <div class="workflow-step">
+        <span class="step-number">1.</span>
+        深度分析工具 investigation
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">2.</span>
+        ThinkDeep 扩展推理分析
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">3.</span>
+        Debug 系统性根因分析
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">4.</span>
+        Chat 多模型协作讨论
+      </div>
+      <div class="workflow-arrow">↓</div>
+      <div class="workflow-step">
+        <span class="step-number">5.</span>
+        Consensus 多模型决策
+      </div>
+      <div class="result">
+        解决方案 + 验证计划 + 最佳实践
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

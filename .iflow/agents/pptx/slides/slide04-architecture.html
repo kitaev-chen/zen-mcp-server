@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 30pt; background: #FFFFFF;
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 28pt; margin-bottom: 20pt;
+  text-align: center;
+}
+.architecture {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  height: 320pt;
+}
+.layer {
+  width: 22%; text-align: center; position: relative;
+}
+.layer-title {
+  font-size: 16pt; font-weight: bold; margin-bottom: 15pt;
+  padding: 10pt; border-radius: 8pt;
+}
+.application { background: #B165FB; color: #FFFFFF; }
+interface { background: #40695B; color: #FFFFFF; }
+.orchestration { background: #F1C40F; color: #2C2C2C; }
+.models { background: #181B24; color: #FFFFFF; }
+
+.layer-items {
+  margin-top: 15pt;
+}
+.item {
+  background: #F8F9FA; padding: 8pt 12pt; margin: 8pt 0;
+  border-radius: 6pt; font-size: 11pt; border-left: 3pt solid #B165FB;
+  text-align: left;
+}
+.arrow {
+  position: absolute; right: -15pt; top: 50%; transform: translateY(-50%);
+  font-size: 24pt; color: #40695B; font-weight: bold;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>技术架构</h1>
+  <div class="architecture">
+    <div class="layer application">
+      <div class="layer-title">应用层</div>
+      <div class="layer-items">
+        <div class="item">Claude Code</div>
+        <div class="item">Gemini CLI</div>
+        <div class="item">Codex CLI</div>
+        <div class="item">Cursor / VS Code</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="layer interface">
+      <div class="layer-title">接口层</div>
+      <div class="layer-items">
+        <div class="item">MCP 协议</div>
+        <div class="item">工具注册</div>
+        <div class="item">上下文管理</div>
+        <div class="item">工作流编排</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="layer orchestration">
+      <div class="layer-title">编排层</div>
+      <div class="layer-items">
+        <div class="item">模型路由</div>
+        <div class="item">智能选择</div>
+        <div class="item">会话管理</div>
+        <div class="item">clink 桥接</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="layer models">
+      <div class="layer-title">模型层</div>
+      <div class="layer-items">
+        <div class="item">OpenAI (GPT-5, O3)</div>
+        <div class="item">Gemini (2.5 Pro)</div>
+        <div class="item">Anthropic Claude</div>
+        <div class="item">本地模型 (Ollama)</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

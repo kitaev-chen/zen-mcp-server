@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 30pt; background: #FFFFFF;
+  border: 2px solid #B165FB; border-radius: 12pt;
+  box-shadow: 4px 4px 12px rgba(177, 101, 251, 0.2);
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 28pt; margin-bottom: 20pt;
+  text-align: center;
+}
+.setup-steps {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20pt;
+}
+.step-card {
+  background: #F8F9FA; border-radius: 10pt; padding: 20pt;
+  border-left: 6px solid #40695B;
+}
+.step-number {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: #FFFFFF; width: 30pt; height: 30pt; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 14pt; margin-bottom: 12pt;
+}
+.step-title {
+  font-size: 16pt; font-weight: bold; color: #2C2C2C; margin-bottom: 10pt;
+}
+.step-content {
+  font-size: 12pt; line-height: 1.5; color: #555;
+}
+.code-block {
+  background: #181B24; color: #FFFFFF; padding: 12pt; border-radius: 6pt;
+  font-family: 'Courier New', monospace; font-size: 10pt; margin: 8pt 0;
+  border: 1px solid #B165FB;
+}
+.highlight {
+  color: #F1C40F; font-weight: bold;
+}
+.note {
+  background: #FFF3CD; color: #856404; padding: 10pt; border-radius: 6pt;
+  border: 1px solid #FFEAA7; margin-top: 15pt; font-size: 11pt;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>快速开始指南 (5分钟)</h1>
+  <div class="setup-steps">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <div class="step-title">准备 API 密钥</div>
+      <div class="step-content">
+        选择并获取至少一个 AI 模型的 API 密钥：
+      </div>
+      <div class="code-block">
+        • OpenRouter (推荐)<br>
+        • Google Gemini<br>
+        • OpenAI (O3, GPT-5)<br>
+        • Azure OpenAI<br>
+        • Ollama (本地免费)
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <div class="step-title">安装与配置</div>
+      <div class="step-content">
+        克隆项目并启动服务器：
+      </div>
+      <div class="code-block">
+git clone https://github.com/...<br>
+cd zen-mcp-server<br>
+<span class="highlight">./run-server.sh</span><br><br>
+# 或使用 uvx<br>
+uvx --from git+https://...<br>
+zen-mcp-server
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <div class="step-title">配置 MCP 服务器</div>
+      <div class="step-content">
+        在 Claude Desktop 或 IDE 配置中添加：
+      </div>
+      <div class="code-block">
+"mcpServers": {<br>
+&nbsp;&nbsp;"zen": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"command": "bash",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"args": ["-c", "uvx --from git+..."],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"env": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"GEMINI_API_KEY": "your-key",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"DEFAULT_MODEL": "auto"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <div class="step-title">开始使用</div>
+      <div class="step-content">
+        立即体验多模型协作：
+      </div>
+      <div class="code-block">
+"用 gemini pro 分析这段代码的安全问题"<br><br>
+"用 o3 调试这个错误，然后用 flash 优化"<br><br>
+"使用 consensus 从多个模型获取建议"<br><br>
+"clink with gemini planner 制定迁移计划"
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    💡 <strong>提示：</strong>首次使用建议从简单的 chat 或 codereview 命令开始，熟悉多模型协作后再尝试复杂工作流
+  </div>
+</div>
+</body>
+</html>

@@ -133,6 +133,21 @@ class SimpleTool(BaseTool):
         """
         return response
 
+    def _track_usage(self, provider, model_name: str, model_response) -> None:
+        """Track usage statistics (non-blocking, failure-tolerant)."""
+        try:
+            from utils.usage_tracker import track_usage
+            usage = model_response.usage or {}
+            track_usage(
+                tool=self.get_name(),
+                provider=provider.get_provider_type().value,
+                model=model_name,
+                input_tokens=usage.get("prompt_tokens", usage.get("input_tokens", 0)),
+                output_tokens=usage.get("completion_tokens", usage.get("output_tokens", 0)),
+            )
+        except Exception:
+            pass  # Non-critical, silently ignore failures
+
     def get_input_schema(self) -> dict[str, Any]:
         """
         Generate the complete input schema using SchemaBuilder.
@@ -451,6 +466,9 @@ class SimpleTool(BaseTool):
             )
 
             logger.info(f"Received response from {provider.get_provider_type().value} API for {self.get_name()}")
+
+            # Track usage (optional, non-blocking)
+            self._track_usage(provider, self._current_model_name, model_response)
 
             # Process the model's response
             if model_response.content:

@@ -207,6 +207,21 @@ class BaseWorkflowMixin(ABC):
 
         return "\n".join(context_parts)
 
+    def _track_usage(self, provider, model_name: str, model_response) -> None:
+        """Track usage statistics (non-blocking, failure-tolerant)."""
+        try:
+            from utils.usage_tracker import track_usage
+            usage = model_response.usage or {}
+            track_usage(
+                tool=self.get_name(),
+                provider=provider.get_provider_type().value,
+                model=model_name,
+                input_tokens=usage.get("prompt_tokens", usage.get("input_tokens", 0)),
+                output_tokens=usage.get("completion_tokens", usage.get("output_tokens", 0)),
+            )
+        except Exception:
+            pass  # Non-critical, silently ignore failures
+
     def requires_expert_analysis(self) -> bool:
         """
         Override this to completely disable expert analysis for the tool.
@@ -1498,6 +1513,9 @@ class BaseWorkflowMixin(ABC):
                 thinking_mode=self.get_request_thinking_mode(request),
                 images=list(set(self.consolidated_findings.images)) if self.consolidated_findings.images else None,
             )
+
+            # Track usage (optional, non-blocking)
+            self._track_usage(provider, model_name, model_response)
 
             if model_response.content:
                 content = model_response.content.strip()

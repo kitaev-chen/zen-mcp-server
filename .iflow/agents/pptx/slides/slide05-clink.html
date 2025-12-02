@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 30pt; background: #FFFFFF;
+  border: 2px solid #B165FB; border-radius: 12pt;
+  box-shadow: 4px 4px 12px rgba(177, 101, 251, 0.2);
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 32pt; margin-bottom: 20pt;
+  text-align: center;
+}
+.highlight-box {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: #FFFFFF; padding: 20pt; border-radius: 10pt;
+  margin-bottom: 20pt; text-align: center; font-size: 16pt;
+  font-weight: bold;
+}
+.features {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20pt;
+}
+.feature {
+  background: #F8F9FA; padding: 15pt; border-radius: 8pt;
+  border-left: 4pt solid #40695B;
+}
+.feature-title {
+  font-size: 14pt; font-weight: bold; color: #B165FB; margin-bottom: 8pt;
+}
+.feature-desc {
+  font-size: 12pt; line-height: 1.4; color: #2C2C2C;
+}
+.code-example {
+  background: #181B24; color: #FFFFFF; padding: 15pt; border-radius: 8pt;
+  font-family: 'Courier New', monospace; font-size: 11pt;
+  margin-top: 20pt;
+  border: 2px solid #B165FB;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>CLI 到 CLI 桥接</h1>
+  <div class="highlight-box">
+    clink (CLI + Link) - 连接外部 AI CLI 直接进入您的工作流程
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">🔗 连接外部 CLI</div>
+      <div class="feature-desc">直接桥接 Gemini CLI、Codex CLI、Claude Code 等工具</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">🔄 CLI 子代理</div>
+      <div class="feature-desc">从当前 CLI 内启动独立的 CLI 实例，处理复杂任务</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">🏝️ 上下文隔离</div>
+      <div class="feature-desc">运行独立调查而不污染主工作空间</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">🎯 角色专业化</div>
+      <div class="feature-desc">专门化的系统提示词 - planner、codereviewer 等</div>
+    </div>
+  </div>
+  <div class="code-example">
+# Codex spawns Codex subagent for isolated code review<br>
+clink with codex codereviewer to audit auth module for security issues<br><br>
+# Consensus from different AI models → Implementation handoff<br>
+Use consensus with gpt-5 and gemini-pro to decide: dark mode or offline support next<br>
+Continue with clink gemini - implement the recommended feature
+  </div>
+</div>
+</body>
+</html>

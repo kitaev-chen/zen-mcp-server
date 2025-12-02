@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #FFFFFF; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #FFFFFF; font-family: Arial, sans-serif;
+  display: flex;
+}
+.content {
+  margin: 30pt; padding: 30pt; background: #FFFFFF;
+  flex: 1;
+}
+h1 {
+  color: #B165FB; font-size: 28pt; margin-bottom: 20pt;
+  text-align: center;
+}
+.models-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20pt;
+  margin-bottom: 25pt;
+}
+.model-category {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: #FFFFFF; padding: 20pt; border-radius: 12pt;
+  text-align: center;
+  box-shadow: 4px 4px 12px rgba(177, 101, 251, 0.3);
+}
+.category-title {
+  font-size: 16pt; font-weight: bold; margin-bottom: 12pt;
+}
+.models-list {
+  font-size: 11pt; line-height: 1.4;
+}
+.collaboration {
+  background: #F8F9FA; padding: 20pt; border-radius: 10pt;
+  border: 2px solid #40695B;
+}
+.collaboration-title {
+  font-size: 18pt; font-weight: bold; color: #B165FB; margin-bottom: 12pt;
+}
+.workflow-steps {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.step {
+  background: #FFFFFF; padding: 15pt; border-radius: 8pt;
+  text-align: center; flex: 1; margin: 0 5pt;
+  border: 2px solid #B165FB; font-size: 10pt;
+}
+.step-arrow {
+  font-size: 20pt; color: #40695B; font-weight: bold;
+}
+</style>
+</head>
+<body>
+<div class="content">
+  <h1>多模型协作生态</h1>
+  <div class="models-grid">
+    <div class="model-category">
+      <div class="category-title">🔵 OpenAI 系列</div>
+      <div class="models-list">
+        GPT-5 Pro<br>
+        O3 (推理专家)<br>
+        GPT-4.1<br>
+        GPT-4o
+      </div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">🟣 Google Gemini</div>
+      <div class="models-list">
+        Gemini 2.5 Pro<br>
+        Gemini Flash<br>
+        Gemini Thinking<br>
+        Gemini Live
+      </div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">🟠 Anthropic</div>
+      <div class="models-list">
+        Claude 3.5 Sonnet<br>
+        Claude 3.5 Haiku<br>
+        Claude 3 Opus<br>
+        Claude Code
+      </div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">🟡 其他平台</div>
+      <div class="models-list">
+        X.AI Grok<br>
+        Azure OpenAI<br>
+        OpenRouter<br>
+        DIAL Gateway
+      </div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">🟢 本地模型</div>
+      <div class="models-list">
+        Ollama<br>
+        Llama 3<br>
+        Mistral<br>
+        Qwen 3
+      </div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">🔴 专业工具</div>
+      <div class="models-list">
+        DeepSeek<br>
+        Kimi 思考<br>
+        智谱 GLM<br>
+        通义千问
+      </div>
+    </div>
+  </div>
+  <div class="collaboration">
+    <div class="collaboration-title">🤝 真实协作工作流示例</div>
+    <div class="workflow-steps">
+      <div class="step">Claude 协调多个模型</div>
+      <div class="step-arrow">→</div>
+      <div class="step">Gemini Pro 深度分析</div>
+      <div class="step-arrow">→</div>
+      <div class="step">O3 推理验证</div>
+      <div class="step-arrow">→</div>
+      <div class="step">统一结果交付</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
