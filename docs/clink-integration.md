@@ -37,7 +37,7 @@ Zen MCP Server's `clink` tool bridges MCP requests to external AI CLI tools. It 
 | **gemini** | Google | gemini_json | stdin | JSON |
 | **codex** | OpenAI | codex_jsonl | stdin | JSONL |
 | **claude** | Anthropic | claude_json | stdin | JSON |
-| **iflow** | MiniMax | iflow_plain | --prompt | Plain Text |
+| **iflow** | Alibaba | iflow_plain | --prompt | Plain Text |
 | **kimi** | Moonshot | kimi_plain | --command | Mixed (ThinkPart/TextPart) |
 | **qwen** | Alibaba | gemini_json | --prompt | JSON |
 | **vecli** | Bytedance | vecli_plain | stdin | Plain Text |
@@ -55,7 +55,7 @@ echo "hello" | codex exec
 echo "hello" | claude --print --output-format json
 
 # iflow - --prompt arg, plain text
-iflow --yolo --model "MiniMax-M2" --prompt "hello"
+iflow --yolo --prompt "hello"
 
 # kimi - --command arg, mixed format
 kimi --yolo --print --thinking --command "hello"
@@ -137,7 +137,7 @@ Per-user overrides (model selection, features):
 {
   "name": "iflow",
   "command": "iflow",
-  "additional_args": ["--model", "MiniMax-M2"],
+  "additional_args": [],
   "env": {},
   "roles": { ... }
 }
@@ -195,7 +195,7 @@ kimi --yolo --print --thinking --thinking --command "hello"
 
 ### iflow
 
-**Provider**: MiniMax  
+**Provider**: Alibaba
 **Parser**: `iflow_plain`  
 **Prompt Mode**: `--prompt` argument  
 **Output**: Plain text + `<Execution Info>` JSON block
@@ -310,10 +310,10 @@ pytest tests/integration/ -m integration -k "kimi" -v
 
 ```bash
 # Via MCP (in Claude Desktop)
-zen - clink (cli_name: "kimi", prompt: "hello")
-zen - clink (cli_name: "iflow", prompt: "what is 2+2")
-zen - clink (cli_name: "qwen", prompt: "explain python")
-zen - clink (cli_name: "vecli", prompt: "code review tips")
+zen - clink (cli_name: "cli:kimi", prompt: "hello")
+zen - clink (cli_name: "cli:iflow", prompt: "what is 2+2")
+zen - clink (cli_name: "cli:qwen", prompt: "explain python")
+zen - clink (cli_name: "cli:vecli", prompt: "code review tips")
 ```
 
 ---
@@ -451,7 +451,7 @@ When adding a new CLI:
 
 5. **Test via MCP**:
    ```
-   zen - clink (cli_name: "kimi", prompt: "hello")
+   zen - clink (cli_name: "cli:kimi", prompt: "hello")
    ```
 
 ---

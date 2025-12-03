@@ -62,6 +62,8 @@ cp -r examples/skills/semantic-code-search ~/.claude/skills/
 | [multi-model-review](./multi-model-review/) | 多模型协作审查 | consensus + codereview + thinkdeep |
 | [full-feature-cycle](./full-feature-cycle/) | 完整开发周期 | planner → codereview → precommit |
 | [architecture-decision](./architecture-decision/) | 架构决策流程 | thinkdeep + consensus + planner |
+| [multi-round-synthesis](./multi-round-synthesis/) | 多轮综合 | clink/thinkdeep → thinkdeep (多轮收敛) |
+| [test-generation](./test-generation/) | 测试用例生成 | testgen → codereview |
 
 ## Skill 文件结构
 

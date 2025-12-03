@@ -189,3 +189,9 @@ logs/
 test_simulation_files/
 test_vector_db/
 .mcp.json
+
+# others
+.iflow/ 
+.claude/
+.serena/
+.spec-workflow/

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 25pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.workflows {
+  display: flex;
+  gap: 25pt;
+}
+.workflow {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 20pt;
+  border-radius: 10pt;
+  border-top: 4px solid #40695B;
+}
+.workflow-title {
+  font-size: 16pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 15pt;
+  text-align: center;
+}
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10pt;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10pt;
+  font-size: 12pt;
+  color: #666;
+}
+.step-number {
+  background: #B165FB;
+  color: white;
+  width: 20pt;
+  height: 20pt;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10pt;
+  font-weight: bold;
+  min-width: 20pt;
+}
+.step-desc {
+  flex: 1;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>实际工作流程示例</h1>
+</div>
+<div class="content">
+  <h2>🔍 代码审查 • 🧠 协作调试 • ⚡ 端到端工作流</h2>
+  <div class="workflows">
+    <div class="workflow">
+      <div class="workflow-title">🔍 多模型代码审查</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-desc">GPT-4 进行初步代码审查</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-desc">Claude 深度安全分析</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-desc">Gemini 性能优化建议</div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-desc">整合审查报告</div>
+        </div>
+      </div>
+    </div>
+    <div class="workflow">
+      <div class="workflow-title">🧠 协作调试流程</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-desc">O3 自动问题诊断</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-desc">Claude 分析根本原因</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-desc">Gemini 生成解决方案</div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-desc">实施修复并验证</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

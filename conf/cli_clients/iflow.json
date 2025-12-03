@@ -2,9 +2,7 @@
   "name": "iflow",
   "command": "iflow",
   "additional_args": [
-    "--yolo",
-    "--model",
-    "MiniMax-M2"
+    "--yolo"
   ],
   "env": {},
   "roles": {

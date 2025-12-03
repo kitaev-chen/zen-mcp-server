@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 25pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.ecosystem {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20pt;
+  margin-bottom: 20pt;
+}
+.integrations {
+  display: flex;
+  gap: 15pt;
+}
+.integration-box {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 15pt;
+  border-radius: 8pt;
+  border-top: 3px solid #40695B;
+}
+.integration-title {
+  font-size: 14pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 8pt;
+  text-align: center;
+}
+.integration-list {
+  font-size: 11pt;
+  color: #666;
+  line-height: 1.3;
+}
+.feature-box {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 15pt;
+  border-radius: 8pt;
+  text-align: center;
+  font-size: 13pt;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>生态系统与平台集成</h1>
+</div>
+<div class="content">
+  <h2>💻 IDE集成 • ☁️ 云部署 • 🔧 热插拔能力</h2>
+  <div class="ecosystem">
+    <div class="integration-box">
+      <div class="integration-title">💻 CLI 工具集成</div>
+      <div class="integration-list">
+        • Claude Code<br>
+        • Gemini CLI<br>
+        • Codex CLI<br>
+        • Qwen CLI<br>
+        • 其他MCP客户端
+      </div>
+    </div>
+    <div class="integration-box">
+      <div class="integration-title">🛠️ IDE 集成方案</div>
+      <div class="integration-list">
+        • VS Code Extension<br>
+        • JetBrains Plugin<br>
+        • Vim/Neovim<br>
+        • Sublime Text<br>
+        • Atom
+      </div>
+    </div>
+    <div class="integration-box">
+      <div class="integration-title">☁️ 云平台部署</div>
+      <div class="integration-list">
+        • Docker 容器化<br>
+        • Kubernetes 集群<br>
+        • AWS Lambda<br>
+        • Azure Functions<br>
+        • Google Cloud Run
+      </div>
+    </div>
+    <div class="integration-box">
+      <div class="integration-title">🔌 扩展能力</div>
+      <div class="integration-list">
+        • 自定义模型接口<br>
+        • 第三方工具集成<br>
+        • Webhook 支持<br>
+        • API 开放接口<br>
+        • 插件系统
+      </div>
+    </div>
+  </div>
+  <div class="feature-box">
+    🔥 热插拔能力：动态加载新模型和工具，无需重启服务
+  </div>
+</div>
+</body>
+</html>

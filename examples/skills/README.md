@@ -62,6 +62,21 @@ cp -r examples/skills/semantic-code-search ~/.claude/skills/
 | [multi-model-review](./multi-model-review/) | 多模型协作审查 | consensus + codereview + thinkdeep |
 | [full-feature-cycle](./full-feature-cycle/) | 完整开发周期 | planner → codereview → precommit |
 | [architecture-decision](./architecture-decision/) | 架构决策流程 | thinkdeep + consensus + planner |
+| [multi-round-synthesis](./multi-round-synthesis/) | 多轮综合 | clink/thinkdeep → thinkdeep (多轮收敛) |
+| [test-generation](./test-generation/) | 测试用例生成 | testgen → codereview |
+
+### Skills 区分度
+
+| 场景 | 推荐 Skill |
+|------|-----------|
+| 搜索代码 | semantic-code-search |
+| 调试问题 | deep-debug |
+| 安全审查 | secure-review |
+| 快速代码审查 | multi-model-review |
+| 功能开发 | full-feature-cycle |
+| 架构设计 | architecture-decision |
+| 高置信度决策 | multi-round-synthesis（多轮综合） |
+| 生成测试 | test-generation |
 
 ## Skill 文件结构
 
@@ -93,6 +108,73 @@ Concrete examples.
 
 - **Claude Code 1.0+**
 - **Zen MCP Server 已配置** - Skills 会调用 Zen 的 MCP 工具
+
+## 模型选择指南
+
+### 可用 API 模型（推荐用于 Skills）
+
+Skills 串联多个 tools，**推荐使用 API 模型**（速度快）：
+
+| 别名 | 模型 | 适用场景 |
+|------|------|---------|
+| `pro` | gemini-2.5-pro | ⭐ 深度推理，1M 上下文 |
+| `flash` | gemini-2.5-flash | ⭐ 快速任务 |
+| `glm-4.6` | glm-4-plus | 通用任务 |
+| `kimik` | kimi-k2 | 通用任务 |
+| `kimit` | kimi-k2-thinking | ⭐ 推理任务 |
+| `deepseekv` | deepseek-v3.2 | 通用任务 |
+| `deepseekr` | deepseek-r1 | ⭐ 推理任务 |
+| `longcatt` | longcat-thinking | 推理任务 |
+| `minimax` | minimax | 通用任务 |
+
+> ⭐ 标记为特别推荐
+
+### 可用 CLI 模型（较慢，仅在需要时使用）
+
+| 别名 | clink cli_name | thinkdeep model | 说明 |
+|------|----------------|-----------------|------|
+| `gcli` | `gemini` | `cli:gemini` | Gemini CLI |
+| `kcli` | `kimi` | `cli:kimi` | Kimi CLI |
+| `icli` | `iflow` | `cli:iflow` | iFlow CLI |
+| `qcli` | `qwen` | `cli:qwen` | Qwen CLI |
+| `vcli` | `vecli` | `cli:vecli` | Doubao CLI |
+| `ocli` | `codex` | `cli:codex` | Codex CLI |
+| `ccli` | `claude` | `cli:claude` | Claude CLI |
+
+### 在 Skills 中指定模型
+
+**方式 1：使用默认**
+```
+Use [tool] to [action]
+```
+
+**方式 2：统一模型**
+```
+Use debug with model pro to analyze...
+Use planner with model pro to create...
+```
+
+**方式 3：混合模型（每步不同）**
+```
+Step 1: Use debug with model pro to analyze...       # pro 深度分析
+Step 2: Use consensus with flash and kimik to...    # 两个模型投票
+Step 3: Use planner with model flash to...          # flash 快速规划
+```
+
+**方式 4：CLI 模型**
+```
+Use [tool] with model gcli to [action]
+```
+
+### 场景推荐
+
+| 场景 | 推荐模型 | 原因 |
+|------|---------|------|
+| Skills 串联多个 tools | API 模型 | 速度快，适合批量处理 |
+| 深度推理 | `pro`, `kimit`, `deepseekr` | 强推理能力 |
+| 快速响应 | `flash`, `glm-4.6` | 低延迟 |
+| 多模型共识 | `pro` + `kimik` 或 `pro` + `deepseekv` | 多角度验证 |
+| 需要 CLI 特性 | `gcli`, `kcli`, `icli` | 访问 CLI 特有功能 |
 
 ## 自定义 Skill
 

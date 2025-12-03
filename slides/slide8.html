@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 25pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20pt;
+}
+.tool-category {
+  background: #f8f9fa;
+  padding: 20pt;
+  border-radius: 10pt;
+  border-left: 4px solid #40695B;
+}
+.category-title {
+  font-size: 16pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 12pt;
+}
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8pt;
+}
+.tool-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8pt 12pt;
+  background: white;
+  border-radius: 6pt;
+  font-size: 13pt;
+}
+.tool-name {
+  font-weight: 500;
+  color: #333;
+}
+.tool-status {
+  padding: 2pt 8pt;
+  border-radius: 4pt;
+  font-size: 10pt;
+  font-weight: bold;
+}
+.status-enabled {
+  background: #d4edda;
+  color: #155724;
+}
+.status-preview {
+  background: #fff3cd;
+  color: #856404;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>专业工具集</h1>
+</div>
+<div class="content">
+  <h2>🤝 协作工具 • 🔍 分析工具 • 🛠️ 开发工具</h2>
+  <div class="tools-grid">
+    <div class="tool-category">
+      <div class="category-title">🤝 协作与规划工具</div>
+      <div class="tool-list">
+        <div class="tool-item">
+          <div class="tool-name">consensus - 多模型共识</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">planner - 任务规划</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">clink - CLI桥接</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+      </div>
+    </div>
+    <div class="tool-category">
+      <div class="category-title">🔍 代码分析工具</div>
+      <div class="tool-list">
+        <div class="tool-item">
+          <div class="tool-name">codereview - 代码审查</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">secaudit - 安全审计</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">refactor - 重构分析</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+      </div>
+    </div>
+    <div class="tool-category">
+      <div class="category-title">🛠️ 开发工具</div>
+      <div class="tool-list">
+        <div class="tool-item">
+          <div class="tool-name">debug - 智能调试</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">thinkdeep - 深度思考</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">testgen - 测试生成</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+      </div>
+    </div>
+    <div class="tool-category">
+      <div class="category-title">📊 特殊工具</div>
+      <div class="tool-list">
+        <div class="tool-item">
+          <div class="tool-name">chat - 通用对话</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">precommit - 提交审查</div>
+          <div class="tool-status status-preview">预览</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">analyze - 代码分析</div>
+          <div class="tool-status status-enabled">已启用</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
