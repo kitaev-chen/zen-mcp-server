@@ -190,5 +190,8 @@ test_simulation_files/
 test_vector_db/
 .mcp.json
 
-# ww
-.iflow/
+# others
+.iflow/ 
+.claude/
+.serena/
+.spec-workflow/

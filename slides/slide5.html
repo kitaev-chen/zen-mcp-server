@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 25pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.clink-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20pt;
+  margin-bottom: 25pt;
+}
+.feature-box {
+  padding: 20pt;
+  background: #f8f9fa;
+  border-radius: 10pt;
+  border-left: 4px solid #40695B;
+}
+.feature-title {
+  font-size: 16pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 10pt;
+}
+.feature-desc {
+  font-size: 13pt;
+  color: #666;
+  line-height: 1.4;
+}
+.code-example {
+  background: #2d3748;
+  color: #e2e8f0;
+  padding: 15pt;
+  border-radius: 8pt;
+  font-family: 'Courier New', monospace;
+  font-size: 11pt;
+  margin-top: 10pt;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>CLI 到 CLI 桥接（clink）</h1>
+</div>
+<div class="content">
+  <h2>🔗 核心创新功能</h2>
+  <div class="clink-features">
+    <div class="feature-box">
+      <div class="feature-title">🔌 外部CLI连接</div>
+      <div class="feature-desc">直接连接 Gemini CLI、Codex CLI、Claude Code 等外部AI工具</div>
+    </div>
+    <div class="feature-box">
+      <div class="feature-title">🎭 角色专业化</div>
+      <div class="feature-desc">spawn planner、codereviewer 等专业角色代理</div>
+    </div>
+    <div class="feature-box">
+      <div class="feature-title">🧹 上下文隔离</div>
+      <div class="feature-desc">独立调查不污染主工作空间，保持上下文清洁</div>
+    </div>
+    <div class="feature-box">
+      <div class="feature-title">🔄 无缝连续性</div>
+      <div class="feature-desc">子CLI作为一等成员参与工具间完整对话</div>
+    </div>
+  </div>
+  <div class="code-example">
+clink with codex codereviewer to audit auth module<br>
+Continue with clink gemini - implement security fixes
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 20pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.architecture {
+  display: flex;
+  flex-direction: column;
+  gap: 8pt;
+  height: 100%;
+}
+.layer {
+  display: flex;
+  align-items: center;
+  gap: 15pt;
+  padding: 12pt 20pt;
+  border-radius: 8pt;
+  color: white;
+  font-weight: bold;
+  position: relative;
+}
+.layer-1 { background: #B165FB; }
+.layer-2 { background: #9B59B6; }
+.layer-3 { background: #40695B; }
+.layer-4 { background: #2C5F4A; }
+.layer-name {
+  min-width: 120pt;
+  font-size: 14pt;
+}
+.layer-desc {
+  font-size: 12pt;
+  opacity: 0.9;
+}
+.layer-components {
+  display: flex;
+  gap: 8pt;
+  margin-left: auto;
+}
+.component {
+  background: rgba(255,255,255,0.2);
+  padding: 4pt 8pt;
+  border-radius: 4pt;
+  font-size: 10pt;
+  font-weight: normal;
+}
+.arrow-down {
+  position: absolute;
+  left: 50%;
+  bottom: -8pt;
+  transform: translateX(-50%);
+  font-size: 12pt;
+  color: #666;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>技术架构</h1>
+</div>
+<div class="content">
+  <h2>四层架构设计 - MCP协议实现</h2>
+  <div class="architecture">
+    <div class="layer layer-1">
+      <div class="layer-name">应用层</div>
+      <div class="layer-desc">Application Layer</div>
+      <div class="layer-components">
+        <div class="component">Claude Code</div>
+        <div class="component">Gemini CLI</div>
+        <div class="component">Codex CLI</div>
+        <div class="component">Qwen CLI</div>
+      </div>
+    </div>
+    
+    <div class="arrow-down">↓</div>
+    
+    <div class="layer layer-2">
+      <div class="layer-name">接口层</div>
+      <div class="layer-desc">Interface Layer</div>
+      <div class="layer-components">
+        <div class="component">MCP 协议</div>
+        <div class="component">JSON-RPC</div>
+        <div class="component">clink 桥接</div>
+        <div class="component">标准I/O</div>
+      </div>
+    </div>
+    
+    <div class="arrow-down">↓</div>
+    
+    <div class="layer layer-3">
+      <div class="layer-name">编排层</div>
+      <div class="layer-desc">Orchestration Layer</div>
+      <div class="layer-components">
+        <div class="component">请求处理器</div>
+        <div class="component">工具注册表</div>
+        <div class="component">上下文管理</div>
+        <div class="component">会话管理</div>
+      </div>
+    </div>
+    
+    <div class="arrow-down">↓</div>
+    
+    <div class="layer layer-4">
+      <div class="layer-name">模型层</div>
+      <div class="layer-desc">Model Layer</div>
+      <div class="layer-components">
+        <div class="component">OpenAI (GPT-5, O3)</div>
+        <div class="component">Anthropic Claude</div>
+        <div class="component">Gemini (2.5 Pro)</div>
+        <div class="component">本地模型</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

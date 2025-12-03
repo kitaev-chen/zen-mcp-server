@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 25pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 30pt 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 28pt;
+  margin: 0 0 25pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15pt;
+  margin-bottom: 25pt;
+}
+.model-category {
+  background: #f8f9fa;
+  padding: 15pt;
+  border-radius: 8pt;
+  border: 2px solid #e9ecef;
+  text-align: center;
+}
+.category-title {
+  font-size: 14pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 8pt;
+}
+.model-list {
+  font-size: 12pt;
+  color: #666;
+  line-height: 1.3;
+}
+.workflow-example {
+  background: linear-gradient(135deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 15pt;
+  border-radius: 8pt;
+  text-align: center;
+  font-size: 13pt;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>多模型协作生态</h1>
+</div>
+<div class="content">
+  <h2>🤖 支持的AI模型提供商</h2>
+  <div class="models-grid">
+    <div class="model-category">
+      <div class="category-title">OpenAI</div>
+      <div class="model-list">GPT-5<br>O3<br>GPT-4 Turbo</div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">Anthropic</div>
+      <div class="model-list">Claude 3.5<br>Claude 3 Opus<br>Claude 3 Haiku</div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">Google</div>
+      <div class="model-list">Gemini 2.5 Pro<br>Gemini 1.5 Pro<br>Gemini Flash</div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">Azure</div>
+      <div class="model-list">Azure OpenAI<br>GPT-4 on Azure<br>定制部署</div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">本地模型</div>
+      <div class="model-list">Ollama<br>本地部署<br>离线使用</div>
+    </div>
+    <div class="model-category">
+      <div class="category-title">其他平台</div>
+      <div class="model-list">OpenRouter<br>XAI (Grok)<br>DIAL</div>
+    </div>
+  </div>
+  <div class="workflow-example">
+    🧠 协作工作流：代码审查 → 调试分析 → 规划优化 → 实现交付
+  </div>
+</div>
+</body>
+</html>

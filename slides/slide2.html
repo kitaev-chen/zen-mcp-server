@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  background: linear-gradient(90deg, #B165FB 0%, #40695B 100%);
+  color: white;
+  padding: 30pt 40pt;
+  text-align: center;
+}
+.content {
+  padding: 40pt;
+  flex: 1;
+}
+h2 {
+  font-size: 32pt;
+  margin: 0 0 30pt 0;
+  color: #B165FB;
+  text-align: center;
+}
+.features {
+  display: flex;
+  justify-content: space-between;
+  gap: 20pt;
+}
+.feature {
+  flex: 1;
+  text-align: center;
+  padding: 20pt;
+  background: #f8f9fa;
+  border-radius: 12pt;
+  border: 2px solid #e9ecef;
+}
+.feature-title {
+  font-size: 18pt;
+  font-weight: bold;
+  color: #40695B;
+  margin-bottom: 10pt;
+}
+.feature-desc {
+  font-size: 14pt;
+  color: #666;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>项目概述</h1>
+</div>
+<div class="content">
+  <h2>AI 多模型协作框架</h2>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">🤖 多模型支持</div>
+      <div class="feature-desc">集成 OpenAI、Anthropic、Gemini、Azure 等主流AI模型</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">🔗 CLI 桥接</div>
+      <div class="feature-desc">clink 技术实现外部CLI工具无缝连接</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">🧠 智能编排</div>
+      <div class="feature-desc">自动选择最优模型，协作完成复杂任务</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

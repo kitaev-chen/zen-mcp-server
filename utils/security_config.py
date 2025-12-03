@@ -84,6 +84,10 @@ EXCLUDED_DIRS = {
     ".flutter",
     # Package managers
     "vendor",
+    # Project specific exclusions
+    ".iflow",
+    "test_vector_db",
+    "zen_mcp_server.egg-info",
 }
 
 

@@ -7,7 +7,49 @@ description: Architecture decision workflow combining deep thinking, multi-model
 
 架构决策流程：深度思考 + 多模型共识 + 实施规划。
 
-## 工具组合
+## 模型配置
+
+### 推荐模型（本 Skill 适用）
+
+本 Skill 需要**深度推理和多模型协作**：
+
+| 别名 | 推荐原因 |
+|------|---------|
+| `pro` | ⭐ 首选，深度分析 |
+| `kimit` | ⭐ 推理模式 |
+| `deepseekr` | ⭐ 推理模式 |
+| `kimik` | 与 pro 互补 |
+| `deepseekv` | 与 pro 互补 |
+
+**推荐 consensus 组合**：
+- `pro` + `kimik` （推荐）
+- `pro` + `deepseekv`
+- `kimit` + `deepseekr`
+
+### 完整可选列表
+
+**API 模型**：`pro`, `flash`, `glm-4.6`, `kimik`, `kimit`, `deepseekv`, `deepseekr`, `longcatt`, `minimax`
+
+**CLI 模型**：`gcli`, `kcli`, `icli`, `qcli`, `vcli`, `ocli`, `ccli`
+
+> 完整说明见 [README 模型选择指南](../README.md#模型选择指南)
+
+⚠️ **性能提示**：本 Skill 调用多个模型，使用 CLI 模型可能需要 5-10 分钟。
+
+### 如何指定模型
+
+```
+# 使用默认
+Use thinkdeep to analyze...
+
+# 指定 API 模型
+Use thinkdeep with model pro to analyze...
+
+# 指定 CLI 模型
+Use thinkdeep with model gcli to analyze...
+```
+
+## 工具串联
 
 ```
 thinkdeep + consensus + planner
@@ -15,26 +57,36 @@ thinkdeep + consensus + planner
 
 ## Instructions
 
-### 完整架构决策流程
+### 步骤 1：深度分析
 
-1. **深度分析**
 ```
-Use thinkdeep with model o3 to analyze this decision thoroughly:
+Use thinkdeep to analyze this decision thoroughly:
 - Evaluate all options
 - Consider trade-offs
 - Assess risks and benefits
 - Identify hidden assumptions
 ```
 
-2. **多模型共识**
+如果用户指定了模型：
 ```
-Use consensus with gemini-2.5-pro and gpt-4o to validate:
+Use thinkdeep with model [USER_MODEL] to analyze...
+```
+
+### 步骤 2：多模型共识
+
+```
+Use consensus with [MODEL1] and [MODEL2] to validate:
 - Do you agree with the analysis?
 - Any blind spots?
 - What's your recommendation?
 ```
 
-3. **实施路线图**
+**推荐模型组合**：
+- `pro` + `kimik`
+- `pro` + `deepseekv`
+
+### 步骤 3：实施路线图
+
 ```
 Based on the consensus, use planner to create:
 - Phased implementation plan
@@ -58,9 +110,9 @@ Context:
 - Constraints: [约束条件]
 - Success criteria: [成功标准]
 
-Step 1: Use thinkdeep with model o3 to analyze this decision thoroughly.
+Step 1: Use thinkdeep to analyze this decision thoroughly.
 
-Step 2: Use consensus with gemini-2.5-pro and gpt-4o to validate the analysis.
+Step 2: Use consensus with pro and kimik to validate the analysis.
 
 Step 3: Based on the consensus, use planner to create implementation roadmap.
 
@@ -79,9 +131,9 @@ Evaluation criteria:
 - Maintenance cost: [预算]
 - Community support: [重要性]
 
-Step 1: Use thinkdeep with model gemini-2.5-pro to analyze both options.
+Step 1: Use thinkdeep to analyze both options.
 
-Step 2: Use consensus with o3 and gpt-4o to validate and recommend.
+Step 2: Use consensus with pro and kimik to validate and recommend.
 
 Step 3: Use planner to create adoption plan for the chosen option.
 ```
@@ -128,12 +180,12 @@ Step 3: Use planner for phased cleanup plan.
 
 ### 快速技术评估
 ```
-Use thinkdeep with model gemini-2.5-flash to quickly evaluate:
+Use thinkdeep with model flash to quickly evaluate:
 [技术选项] for [场景] - pros, cons, recommendation.
 ```
 
 ### 快速共识
 ```
-Use consensus with gemini-flash and gpt-4o-mini to decide:
+Use consensus with flash and kimik to decide:
 [简单决策问题]
 ```

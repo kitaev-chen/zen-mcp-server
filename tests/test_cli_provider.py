@@ -135,7 +135,7 @@ class TestCLIModelProvider:
             # Kimi CLI aliases
             "kimi cli", "kimi-cli", "moonshot cli", "moonshot-cli", "kcli",
             # iFlow CLI aliases
-            "iflow cli", "iflow-cli", "minimax cli", "icli",
+            "iflow cli", "iflow-cli", "icli",
             # Qwen CLI aliases
             "qwen cli", "qwen-cli", "tongyi cli", "tongyi-cli", "qcli",
             # Vecli aliases

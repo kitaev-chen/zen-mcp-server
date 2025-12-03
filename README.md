@@ -188,7 +188,7 @@ cd zen-mcp-server
 "Use zen to analyze this code for security issues with gemini pro"
 "Debug this error with o3 and then get flash to suggest optimizations"
 "Plan the migration strategy with zen, get consensus from multiple models"
-"clink with cli_name=\"gemini\" role=\"planner\" to draft a phased rollout plan"
+"clink with cli_name=\"gemini cli\" role=\"planner\" to draft a phased rollout plan"
 ```
 
 👉 **[Complete Setup Guide](docs/getting-started.md)** with detailed installation, configuration for Gemini / Codex / Qwen, and troubleshooting

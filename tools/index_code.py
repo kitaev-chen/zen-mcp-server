@@ -5,6 +5,8 @@ This tool indexes code files into a vector store for semantic search.
 Supports incremental indexing and multiple file types.
 """
 
+import asyncio
+import concurrent.futures
 import logging
 import os
 import time
@@ -115,12 +117,31 @@ class IndexCodeTool(BaseTool):
         if not os.path.isdir(path):
             return [TextContent(type="text", text=f"❌ Path is not a directory: {path}")]
 
+        # Run the heavy indexing in a separate thread to avoid blocking the event loop
+        loop = asyncio.get_running_loop()
+        try:
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                result_text = await loop.run_in_executor(
+                    pool, 
+                    self._index_files_sync, 
+                    path, 
+                    extensions, 
+                    force, 
+                    chunk_size
+                )
+            return [TextContent(type="text", text=result_text)]
+        except Exception as e:
+            logger.error(f"Indexing failed: {e}")
+            return [TextContent(type="text", text=f"❌ Indexing failed: {e}")]
+
+    def _index_files_sync(self, path: str, extensions: list[str], force: bool, chunk_size: int) -> str:
+        """Synchronous implementation of indexing logic to run in a thread."""
         # Import vector store (lazy to avoid startup cost)
         try:
             from utils.vector_store import get_vector_store
             store = get_vector_store()
         except ImportError as e:
-            return [TextContent(type="text", text=f"❌ Vector search not available: {e}\nInstall with: pip install chromadb")]
+            return f"❌ Vector search not available: {e}\nInstall with: pip install chromadb"
 
         # Clear existing index if force
         if force:
@@ -130,16 +151,29 @@ class IndexCodeTool(BaseTool):
         files_to_index = self._find_files(path, extensions)
         
         if not files_to_index:
-            return [TextContent(type="text", text=f"ℹ️ No files found to index in {path} with extensions {extensions}")]
+            return f"ℹ️ No files found to index in {path} with extensions {extensions}"
 
         # Index files
         start_time = time.time()
         total_chunks = 0
         indexed_files = 0
+        skipped_files = 0
         errors = []
+        
+        # 1MB limit
+        MAX_FILE_SIZE = 1024 * 1024
 
         for file_path in files_to_index:
             try:
+                # Check file size
+                try:
+                    size = os.path.getsize(file_path)
+                    if size > MAX_FILE_SIZE:
+                        skipped_files += 1
+                        continue
+                except OSError:
+                    continue
+
                 chunks = self._chunk_file(file_path, chunk_size)
                 if chunks:
                     count = store.add_chunks(file_path, chunks)
@@ -158,6 +192,9 @@ class IndexCodeTool(BaseTool):
             f"📝 Extensions: {', '.join(extensions)}",
         ]
         
+        if skipped_files > 0:
+            result.append(f"⚠️ Skipped {skipped_files} files larger than 1MB")
+        
         if errors:
             result.append(f"\n⚠️ {len(errors)} files had errors:")
             for err in errors[:5]:  # Show first 5 errors
@@ -167,7 +204,7 @@ class IndexCodeTool(BaseTool):
         
         result.append("\n💡 Use `search_code` to search the indexed code.")
         
-        return [TextContent(type="text", text="\n".join(result))]
+        return "\n".join(result)
 
     def _find_files(self, directory: str, extensions: list[str]) -> list[str]:
         """Find all files matching the extensions."""
