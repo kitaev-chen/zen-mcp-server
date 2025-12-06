@@ -111,204 +111,49 @@ class GeminiModelProvider(RegistryBackedProviderMixin, ModelProvider):
     # Request execution
     # ------------------------------------------------------------------
 
-    def generate_content(
+    async def generate_content(
         self,
         prompt: str,
         model_name: str,
         system_prompt: Optional[str] = None,
-        temperature: float = 1.0,
+        temperature: float = 0.7,
         max_output_tokens: Optional[int] = None,
-        thinking_mode: str = "medium",
-        images: Optional[list[str]] = None,
         **kwargs,
     ) -> ModelResponse:
         """
         Generate content using Gemini model.
-
-        Args:
-            prompt: The main user prompt/query to send to the model
-            model_name: Canonical model name or its alias (e.g., "gemini-2.5-pro", "flash", "pro")
-            system_prompt: Optional system instructions to prepend to the prompt for context/behavior
-            temperature: Controls randomness in generation (0.0=deterministic, 1.0=creative), default 0.3
-            max_output_tokens: Optional maximum number of tokens to generate in the response
-            thinking_mode: Thinking budget level for models that support it ("minimal", "low", "medium", "high", "max"), default "medium"
-            images: Optional list of image paths or data URLs to include with the prompt (for vision models)
-            **kwargs: Additional keyword arguments (reserved for future use)
-
-        Returns:
-            ModelResponse: Contains the generated content, token usage stats, model metadata, and safety information
         """
-        # Validate parameters and fetch capabilities
         self.validate_parameters(model_name, temperature)
-        capabilities = self.get_capabilities(model_name)
-        capability_map = self.get_all_model_capabilities()
-
         resolved_model_name = self._resolve_model_name(model_name)
 
-        # Prepare content parts (text and potentially images)
-        parts = []
-
-        # Add system and user prompts as text
-        if system_prompt:
-            full_prompt = f"{system_prompt}\n\n{prompt}"
-        else:
-            full_prompt = prompt
-
-        parts.append({"text": full_prompt})
-
-        # Add images if provided and model supports vision
-        if images and capabilities.supports_images:
-            for image_path in images:
-                try:
-                    image_part = self._process_image(image_path)
-                    if image_part:
-                        parts.append(image_part)
-                except Exception as e:
-                    logger.warning(f"Failed to process image {image_path}: {e}")
-                    # Continue with other images and text
-                    continue
-        elif images and not capabilities.supports_images:
-            logger.warning(f"Model {resolved_model_name} does not support images, ignoring {len(images)} image(s)")
-
-        # Create contents structure
-        contents = [{"parts": parts}]
-
-        # Gemini 3 Pro Preview currently rejects medium thinking budgets; bump to high.
-        effective_thinking_mode = thinking_mode
-        if resolved_model_name == "gemini-3-pro-preview" and thinking_mode == "medium":
-            logger.debug(
-                "Overriding thinking mode 'medium' with 'high' for %s due to launch limitation",
-                resolved_model_name,
-            )
-            effective_thinking_mode = "high"
-
-        # Prepare generation config
-        generation_config = types.GenerateContentConfig(
-            temperature=temperature,
-            candidate_count=1,
-        )
-
-        # Add max output tokens if specified
-        if max_output_tokens:
-            generation_config.max_output_tokens = max_output_tokens
-
-        # Add thinking configuration for models that support it
-        if capabilities.supports_extended_thinking and effective_thinking_mode in self.THINKING_BUDGETS:
-            # Get model's max thinking tokens and calculate actual budget
-            model_config = capability_map.get(resolved_model_name)
-            if model_config and model_config.max_thinking_tokens > 0:
-                max_thinking_tokens = model_config.max_thinking_tokens
-                actual_thinking_budget = int(max_thinking_tokens * self.THINKING_BUDGETS[effective_thinking_mode])
-                generation_config.thinking_config = types.ThinkingConfig(thinking_budget=actual_thinking_budget)
-
-        # Retry logic with progressive delays
-        max_retries = 4  # Total of 4 attempts
-        retry_delays = [1, 3, 5, 8]  # Progressive delays: 1s, 3s, 5s, 8s
-        attempt_counter = {"value": 0}
-
-        def _attempt() -> ModelResponse:
-            attempt_counter["value"] += 1
-            response = self.client.models.generate_content(
+        prompt_content = system_prompt + "\n\n" + prompt if system_prompt else prompt
+        
+        try:
+            # For now, use a simple async call without the retry loop
+            response = await self.client.generate_content_async(
                 model=resolved_model_name,
-                contents=contents,
-                config=generation_config,
+                contents=[{"parts": [{"text": prompt_content}]}],
+                generation_config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    candidate_count=1,
+                    max_output_tokens=max_output_tokens
+                )
             )
-
+            
+            # Extract basic usage info
             usage = self._extract_usage(response)
-
-            finish_reason_str = "UNKNOWN"
-            is_blocked_by_safety = False
-            safety_feedback_details = None
-
-            if response.candidates:
-                candidate = response.candidates[0]
-
-                try:
-                    finish_reason_enum = candidate.finish_reason
-                    if finish_reason_enum:
-                        try:
-                            finish_reason_str = finish_reason_enum.name
-                        except AttributeError:
-                            finish_reason_str = str(finish_reason_enum)
-                    else:
-                        finish_reason_str = "STOP"
-                except AttributeError:
-                    finish_reason_str = "STOP"
-
-                if not response.text:
-                    try:
-                        safety_ratings = candidate.safety_ratings
-                        if safety_ratings:
-                            for rating in safety_ratings:
-                                try:
-                                    if rating.blocked:
-                                        is_blocked_by_safety = True
-                                        category_name = "UNKNOWN"
-                                        probability_name = "UNKNOWN"
-
-                                        try:
-                                            category_name = rating.category.name
-                                        except (AttributeError, TypeError):
-                                            pass
-
-                                        try:
-                                            probability_name = rating.probability.name
-                                        except (AttributeError, TypeError):
-                                            pass
-
-                                        safety_feedback_details = (
-                                            f"Category: {category_name}, Probability: {probability_name}"
-                                        )
-                                        break
-                                except (AttributeError, TypeError):
-                                    continue
-                    except (AttributeError, TypeError):
-                        pass
-
-            elif response.candidates is not None and len(response.candidates) == 0:
-                is_blocked_by_safety = True
-                finish_reason_str = "SAFETY"
-                safety_feedback_details = "Prompt blocked, reason unavailable"
-
-                try:
-                    prompt_feedback = response.prompt_feedback
-                    if prompt_feedback and prompt_feedback.block_reason:
-                        try:
-                            block_reason_name = prompt_feedback.block_reason.name
-                        except AttributeError:
-                            block_reason_name = str(prompt_feedback.block_reason)
-                        safety_feedback_details = f"Prompt blocked, reason: {block_reason_name}"
-                except (AttributeError, TypeError):
-                    pass
-
+            
             return ModelResponse(
                 content=response.text,
                 usage=usage,
                 model_name=resolved_model_name,
                 friendly_name="Gemini",
                 provider=ProviderType.GOOGLE,
-                metadata={
-                    "thinking_mode": effective_thinking_mode if capabilities.supports_extended_thinking else None,
-                    "finish_reason": finish_reason_str,
-                    "is_blocked_by_safety": is_blocked_by_safety,
-                    "safety_feedback": safety_feedback_details,
-                },
+                metadata={}
             )
-
-        try:
-            return self._run_with_retries(
-                operation=_attempt,
-                max_attempts=max_retries,
-                delays=retry_delays,
-                log_prefix=f"Gemini API ({resolved_model_name})",
-            )
-        except Exception as exc:
-            attempts = max(attempt_counter["value"], 1)
-            error_msg = (
-                f"Gemini API error for model {resolved_model_name} after {attempts} attempt"
-                f"{'s' if attempts > 1 else ''}: {exc}"
-            )
-            raise RuntimeError(error_msg) from exc
+        except Exception as e:
+            logger.error(f"Gemini API error: {e}")
+            raise RuntimeError(f"Gemini API error: {e}") from e
 
     def get_provider_type(self) -> ProviderType:
         """Get the provider type."""

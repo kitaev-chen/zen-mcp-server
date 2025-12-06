@@ -77,7 +77,7 @@ The clink system supports multiple LLM CLI clients, each with its own output for
 
 ### 5. Kimi (`kimi`)
 
-- **Command Args**: `--yolo --print --thinking --command`
+- **Command Args**: `--yolo --print --command`
 - **Parser**: `kimi_plain` (`KimiPlainParser`)
 - **Output Format**: Mixed format with TextPart, ThinkPart, and plain text
 - **Example Output**:

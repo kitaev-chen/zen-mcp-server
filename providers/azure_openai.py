@@ -6,9 +6,12 @@ import logging
 from dataclasses import asdict, replace
 
 try:  # pragma: no cover - optional dependency
-    from openai import AzureOpenAI
+    from openai import AzureOpenAI, AsyncAzureOpenAI
 except ImportError:  # pragma: no cover
     AzureOpenAI = None  # type: ignore[assignment]
+    AsyncAzureOpenAI = None
+
+import httpx
 
 from utils.env import get_env, suppress_env_vars
 
@@ -229,8 +232,10 @@ class AzureOpenAIProvider(OpenAICompatibleProvider):
     # ------------------------------------------------------------------
     # Azure-specific configuration
     # ------------------------------------------------------------------
-    @property
-    def client(self):  # type: ignore[override]
+    # ------------------------------------------------------------------
+    # Azure-specific configuration
+    # ------------------------------------------------------------------
+    async def get_client(self):
         """Instantiate the Azure OpenAI client on first use."""
 
         if self._client is None:
@@ -239,15 +244,13 @@ class AzureOpenAIProvider(OpenAICompatibleProvider):
                     "Azure OpenAI support requires the 'openai' package. Install it with `pip install openai`."
                 )
 
-            import httpx
-
             proxy_env_vars = ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]
 
             with suppress_env_vars(*proxy_env_vars):
                 try:
                     timeout_config = self.timeout_config
 
-                    http_client = httpx.Client(timeout=timeout_config, follow_redirects=True)
+                    http_client = httpx.AsyncClient(timeout=timeout_config, follow_redirects=True)
 
                     client_kwargs = {
                         "api_key": self.api_key,
@@ -266,7 +269,7 @@ class AzureOpenAIProvider(OpenAICompatibleProvider):
                         timeout_config,
                     )
 
-                    self._client = AzureOpenAI(**client_kwargs)
+                    self._client = AsyncAzureOpenAI(**client_kwargs)
 
                 except Exception as exc:
                     logger.error("Failed to create Azure OpenAI client: %s", exc)
@@ -277,7 +280,7 @@ class AzureOpenAIProvider(OpenAICompatibleProvider):
     # ------------------------------------------------------------------
     # Request delegation
     # ------------------------------------------------------------------
-    def generate_content(
+    async def generate_content(
         self,
         prompt: str,
         model_name: str,
@@ -293,7 +296,7 @@ class AzureOpenAIProvider(OpenAICompatibleProvider):
         # deployment name – Azure requires the deployment identifier in the
         # ``model`` field.  The returned ``ModelResponse`` is normalised so
         # downstream consumers continue to see the canonical model name.
-        raw_response = super().generate_content(
+        raw_response = await super().generate_content(
             prompt=prompt,
             model_name=deployment_name,
             system_prompt=system_prompt,

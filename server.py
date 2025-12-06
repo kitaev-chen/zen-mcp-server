@@ -49,6 +49,7 @@ from config import (  # noqa: E402
 )
 from tools import (  # noqa: E402
     AnalyzeTool,
+    BatchQueryTool,
     ChallengeTool,
     ChatTool,
     CLinkTool,
@@ -263,6 +264,7 @@ def filter_disabled_tools(all_tools: dict[str, Any]) -> dict[str, Any]:
 TOOLS = {
     "chat": ChatTool(),  # Interactive development chat and brainstorming
     "clink": CLinkTool(),  # Bridge requests to configured AI CLIs
+    "batch_query": BatchQueryTool(),  # Parallel query multiple models (CLI + API) simultaneously
     "thinkdeep": ThinkDeepTool(),  # Step-by-step deep thinking workflow with expert analysis
     "planner": PlannerTool(),  # Interactive sequential planner using workflow architecture
     "consensus": ConsensusTool(),  # Step-by-step consensus workflow with multi-model analysis
@@ -1482,6 +1484,11 @@ async def main():
         logger.info("Model mode: AUTO (CLI will select the best model for each task)")
     else:
         logger.info(f"Model mode: Fixed model '{DEFAULT_MODEL}'")
+    
+    # Initialize and start the advanced concurrency manager
+    from utils.concurrency_v2 import get_advanced_concurrency_manager
+    concurrency_manager = get_advanced_concurrency_manager()
+    await concurrency_manager.start()
 
     # Import here to avoid circular imports
     from config import DEFAULT_THINKING_MODE_THINKDEEP

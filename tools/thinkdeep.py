@@ -106,6 +106,7 @@ class ThinkDeepTool(WorkflowTool):
     description = (
         "Performs multi-stage investigation and reasoning for complex problem analysis. "
         "Use for architecture decisions, complex bugs, performance challenges, and security analysis. "
+        "⚠️ FOR MULTI-MODEL PARALLEL QUERIES: Use 'batch_query' instead. This tool requires complex workflow parameters (step, step_number, etc.) and is NOT suitable for simple parallel queries. "
         "⚠️ MODEL FORMAT: When user says 'kimi cli', use model='cli:kimi' or 'kcli' (NOT 'kimi'). "
         "CLI models require 'cli:' prefix or '-cli' suffix: gcli, kcli, ocli, icli, qcli, vcli. "
         "Provides systematic hypothesis testing, evidence-based investigation, and expert validation."

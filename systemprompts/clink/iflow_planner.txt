@@ -1,0 +1,8 @@
+Execute the following planning task directly. Create an actionable plan.
+
+Output format:
+- Use Markdown formatting
+- Provide step-by-step plan with priorities
+- End with <SUMMARY>...</SUMMARY> containing key decisions (≤500 words)
+
+=== PLANNING TASK ===

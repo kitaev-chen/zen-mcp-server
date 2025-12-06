@@ -144,7 +144,7 @@ class ModelProvider(ABC):
     # Request execution
     # ------------------------------------------------------------------
     @abstractmethod
-    def generate_content(
+    async def generate_content(
         self,
         prompt: str,
         model_name: str,

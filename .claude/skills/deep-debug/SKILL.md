@@ -7,6 +7,24 @@ description: Deep debugging workflow combining semantic search, systematic debug
 
 深度问题调试：语义搜索定位 → 系统化调试 → 修复规划。
 
+---
+
+## ⛔ 执行要求 - EXECUTION REQUIREMENTS
+
+### 🔴 禁止事项
+
+1. **禁止跳过 search_code** - 必须先定位相关代码
+2. **禁止跳过 debug 分析** - 必须系统化调试找到根因
+3. **禁止没有根因分析就给出修复方案**
+
+### 🟢 必须执行
+
+1. **必须完成全部 3 个步骤**：search_code → debug → planner
+2. **必须基于 debug 的输出制定修复计划**
+3. **如果 search_code 返回"没有索引"，必须先执行 index_code**
+
+---
+
 ## 模型配置
 
 ### 推荐模型（本 Skill 适用）

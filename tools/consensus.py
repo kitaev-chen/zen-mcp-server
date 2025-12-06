@@ -443,6 +443,64 @@ of the evidence, even when it strongly points in one direction.""",
         # Validate request
         request = self.get_workflow_request_model()(**arguments)
 
+        # Fix for NoneType error on continuation: Restore original proposal from thread history
+        if request.step_number > 1 and not self.original_proposal and request.continuation_id:
+            thread = get_thread(request.continuation_id)
+            if thread and thread.initial_context:
+                # The initial arguments are stored in the thread.
+                # We can re-create the initial request to get the 'step' content.
+                initial_step_proposal = thread.initial_context.get("step")
+                if initial_step_proposal:
+                    self.store_initial_issue(initial_step_proposal)
+
+                # Enhanced state restoration for continuation workflows
+                # This ensures all critical state variables are properly restored
+                if request.step_number > 1 and not self.original_proposal and request.continuation_id:
+                    thread = get_thread(request.continuation_id)
+                    if thread and thread.initial_context:
+                        # Restore all critical state variables that are lost on continuation
+                        # This ensures workflow continuity across tool instance recreation
+                        initial_context = thread.initial_context
+
+                        # 1. Restore original proposal (fixes NoneType error)
+                        initial_step_proposal = initial_context.get("step")
+                        if initial_step_proposal and not self.original_proposal:
+                            self.store_initial_issue(initial_step_proposal)
+
+                        # 2. Restore models to consult (prevents empty models list)
+                        if not self.models_to_consult:
+                            initial_models = initial_context.get("models")
+                            if initial_models:
+                                self.models_to_consult = initial_models
+
+                        # 3. Restore accumulated responses (prevents incomplete synthesis)
+                        if not self.accumulated_responses:
+                            # Handle both string and list formats from thread storage
+                            initial_responses = initial_context.get("accumulated_responses")
+                            if initial_responses:
+                                # Convert string representation back to list format
+                                if isinstance(initial_responses, str):
+                                    import json
+                                    try:
+                                        responses_list = json.loads(initial_responses)
+                                    except json.JSONDecodeError:
+                                        # If parsing fails, treat as single response in list
+                                        responses_list = [{"model": "unknown", "response": initial_responses, "status": "restored_from_string"}]
+                                elif isinstance(initial_responses, list):
+                                    responses_list = initial_responses
+                                else:
+                                    responses_list = [{"model": "unknown", "response": str(initial_responses), "status": "restored_as_string"}]
+
+                                self.accumulated_responses = responses_list
+
+                        # Log successful state restoration for debugging
+                        logger.info(
+                            f"[CONSENSUS_STATE_RESTORED] Step {request.step_number}: "
+                            f"Restored original_proposal: {self.original_proposal is not None}, "
+                            f"models_to_consult: {len(self.models_to_consult) if self.models_to_consult else 0}, "
+                            f"accumulated_responses: {len(self.accumulated_responses) if self.accumulated_responses else 0}"
+                        )
+
         # Resolve existing continuation_id or create a new one on first step
         continuation_id = request.continuation_id
 
@@ -460,88 +518,62 @@ of the evidence, even when it strongly points in one direction.""",
             self.initial_request = request.step
             self.models_to_consult = request.models or []
             self.accumulated_responses = []
-            # Set total steps: len(models) (each step includes consultation + response)
-            request.total_steps = len(self.models_to_consult)
+            # Set total steps: len(models) (each step includes consultation + response)\r\n            request.total_steps = len(self.models_to_consult)
 
-        # For all steps (1 through total_steps), consult the corresponding model
-        if request.step_number <= request.total_steps:
-            # Calculate which model to consult for this step
-            model_idx = request.step_number - 1  # 0-based index
+        # For step 1, consult all models in parallel after initial analysis
+        if request.step_number == 1:
+            # Track workflow state for conversation memory
+            step_data = self.prepare_step_data(request)
+            self.work_history.append(step_data)
+            self._update_consolidated_findings(step_data)
 
-            if model_idx < len(self.models_to_consult):
-                # Track workflow state for conversation memory
-                step_data = self.prepare_step_data(request)
-                self.work_history.append(step_data)
-                self._update_consolidated_findings(step_data)
+            # Consult all models in parallel
+            tasks = [self._consult_model(model_config, request) for model_config in self.models_to_consult]
+            self.accumulated_responses = await asyncio.gather(*tasks)
 
-                # Consult the model for this step
-                model_response = await self._consult_model(self.models_to_consult[model_idx], request)
+            # Include the model responses in the step data
+            response_data = {
+                "status": "consensus_workflow_complete",
+                "step_number": 2,
+                "total_steps": 2,
+                "consensus_complete": True,
+                "agent_analysis": {
+                    "initial_analysis": request.step,
+                    "findings": request.findings,
+                },
+                "complete_consensus": {
+                    "initial_prompt": self.original_proposal if self.original_proposal else self.initial_prompt,
+                    "models_consulted": [
+                        f"{m['model']}:{m.get('stance', 'neutral')}" for m in self.accumulated_responses
+                    ],
+                    "total_responses": len(self.accumulated_responses),
+                    "consensus_confidence": "high",
+                },
+                "accumulated_responses": self.accumulated_responses,
+                "next_step_required": False,
+                "next_steps": (
+                    "CONSENSUS GATHERING IS COMPLETE. Synthesize all perspectives and present:\n"
+                    "1. Key points of AGREEMENT across models\n"
+                    "2. Key points of DISAGREEMENT and why they differ\n"
+                    "3. Your final consolidated recommendation\n"
+                    "4. Specific, actionable next steps for implementation\n"
+                    "5. Critical risks or concerns that must be addressed"
+                ),
+            }
 
-                # Add to accumulated responses
-                self.accumulated_responses.append(model_response)
+            # Add continuation information and workflow customization
+            response_data = self.customize_workflow_response(response_data, request)
 
-                # Include the model response in the step data
-                response_data = {
-                    "status": "model_consulted",
-                    "step_number": request.step_number,
-                    "total_steps": request.total_steps,
-                    "model_consulted": model_response["model"],
-                    "model_stance": model_response.get("stance", "neutral"),
-                    "model_response": model_response,
-                    "current_model_index": model_idx + 1,
-                    "next_step_required": request.step_number < request.total_steps,
-                }
+            # Ensure consensus-specific metadata is attached
+            self._add_workflow_metadata(response_data, arguments)
 
-                # Add CLAI Agent's analysis to step 1
-                if request.step_number == 1:
-                    response_data["agent_analysis"] = {
-                        "initial_analysis": request.step,
-                        "findings": request.findings,
-                    }
-                    response_data["status"] = "analysis_and_first_model_consulted"
+            if continuation_id:
+                self.store_conversation_turn(continuation_id, response_data, request)
+                continuation_offer = self._build_continuation_offer(continuation_id)
+                if continuation_offer:
+                    response_data["continuation_offer"] = continuation_offer
 
-                # Check if this is the final step
-                if request.step_number == request.total_steps:
-                    response_data["status"] = "consensus_workflow_complete"
-                    response_data["consensus_complete"] = True
-                    response_data["complete_consensus"] = {
-                        "initial_prompt": self.original_proposal if self.original_proposal else self.initial_prompt,
-                        "models_consulted": [
-                            f"{m['model']}:{m.get('stance', 'neutral')}" for m in self.accumulated_responses
-                        ],
-                        "total_responses": len(self.accumulated_responses),
-                        "consensus_confidence": "high",
-                    }
-                    response_data["next_steps"] = (
-                        "CONSENSUS GATHERING IS COMPLETE. Synthesize all perspectives and present:\n"
-                        "1. Key points of AGREEMENT across models\n"
-                        "2. Key points of DISAGREEMENT and why they differ\n"
-                        "3. Your final consolidated recommendation\n"
-                        "4. Specific, actionable next steps for implementation\n"
-                        "5. Critical risks or concerns that must be addressed"
-                    )
-                else:
-                    response_data["next_steps"] = (
-                        f"Model {model_response['model']} has provided its {model_response.get('stance', 'neutral')} "
-                        f"perspective. Please analyze this response and call {self.get_name()} again with:\n"
-                        f"- step_number: {request.step_number + 1}\n"
-                        f"- findings: Summarize key points from this model's response"
-                    )
-
-                # Add continuation information and workflow customization
-                response_data = self.customize_workflow_response(response_data, request)
-
-                # Ensure consensus-specific metadata is attached
-                self._add_workflow_metadata(response_data, arguments)
-
-                if continuation_id:
-                    self.store_conversation_turn(continuation_id, response_data, request)
-                    continuation_offer = self._build_continuation_offer(continuation_id)
-                    if continuation_offer:
-                        response_data["continuation_offer"] = continuation_offer
-
-                return [TextContent(type="text", text=json.dumps(response_data, indent=2, ensure_ascii=False))]
-
+            return [TextContent(type="text", text=json.dumps(response_data, indent=2, ensure_ascii=False))]
         # Otherwise, use standard workflow execution
         return await super().execute_workflow(arguments)
 
@@ -616,7 +648,7 @@ of the evidence, even when it strongly points in one direction.""",
                 logger.warning(warning)
 
             # Call the model with validated temperature
-            response = provider.generate_content(
+            response = await provider.generate_content(
                 prompt=prompt,
                 model_name=model_name,
                 system_prompt=system_prompt,

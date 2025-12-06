@@ -58,7 +58,7 @@ echo "hello" | claude --print --output-format json
 iflow --yolo --prompt "hello"
 
 # kimi - --command arg, mixed format
-kimi --yolo --print --thinking --command "hello"
+kimi --yolo --print --command "hello"
 
 # qwen - --prompt arg, JSON output
 qwen --yolo --output-format json --prompt "hello"
@@ -109,7 +109,7 @@ INTERNAL_DEFAULTS = {
     ),
     "kimi": CLIInternalDefaults(
         parser="kimi_plain",
-        additional_args=["--yolo", "--print", "--thinking"],
+        additional_args=["--yolo", "--print"],
         default_role_prompt="systemprompts/clink/default.txt",
         runner="kimi",
     ),
@@ -148,7 +148,7 @@ Per-user overrides (model selection, features):
 {
   "name": "kimi",
   "command": "kimi",
-  "additional_args": ["--thinking"],
+  "additional_args": [],
   "env": {},
   "roles": { ... }
 }
@@ -184,7 +184,7 @@ Final command = `constants.py` + `config.json` + `role_args`
 
 **Example: kimi**
 ```bash
-kimi --yolo --print --thinking --thinking --command "hello"
+kimi --yolo --print --command "hello"
      └──────────────┬────────────────┘ └────┬────┘
         constants.py (internal)      config.json (user)
 ```
@@ -394,7 +394,7 @@ Get-Process python | Where-Object {$_.CommandLine -like "*zen-mcp-server*"} | St
 
 **Symptoms**: CLI runs successfully but parser extracts nothing  
 **Debug**:
-1. Check actual CLI output: `kimi --print --thinking --command "test"`
+1. Check actual CLI output: `kimi --print --command "test"`
 2. Verify parser matches output format
 3. Add logging to parser to see what's being extracted
 
@@ -443,7 +443,7 @@ When adding a new CLI:
 
 3. **Test CLI locally**:
    ```bash
-   kimi --yolo --print --thinking --command "hello"
+   kimi --yolo --print --command "hello"
    ```
 
 4. **Restart MCP Server**:

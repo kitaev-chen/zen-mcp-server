@@ -1014,7 +1014,7 @@ def build_conversation_history(context: ThreadContext, model_context=None, read_
     complete_history = "\n".join(history_parts)
     from utils.token_utils import estimate_tokens
 
-    total_conversation_tokens = estimate_tokens(complete_history)
+    total_conversation_tokens = estimate_tokens(complete_history, model_context.model_name)
 
     # Summary log of what was built
     user_turns = len([t for t in all_turns if t.role == "user"])

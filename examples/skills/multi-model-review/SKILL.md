@@ -7,6 +7,24 @@ description: Multi-model collaborative review combining consensus, code review, 
 
 多模型协作审查：共识决策 + 代码审查 + 深度思考。
 
+---
+
+## ⛔ 执行要求 - EXECUTION REQUIREMENTS
+
+### 🔴 禁止事项
+
+1. **禁止跳过 consensus 步骤** - 必须至少 2 个模型参与共识
+2. **禁止只做 codereview 不做 consensus** - 本 skill 的核心是多模型协作
+3. **禁止在工具调用前就给出最终结论**
+
+### 🟢 必须执行
+
+1. **必须完成全部 3 个步骤**：consensus → codereview → thinkdeep
+2. **必须使用至少 2 个模型进行 consensus**
+3. **必须综合所有工具的输出形成最终结论**
+
+---
+
 ## 模型配置
 
 ### 推荐模型（本 Skill 适用）
@@ -159,3 +177,27 @@ Provide final recommendation with confidence level.
 2. **明确评判标准**：告诉模型关注什么
 3. **权衡时间成本**：快速检查 vs 深度审查
 4. **整合发现**：综合多模型意见形成结论
+
+---
+
+## ⚡ 并行化优化（可选）
+
+如需更快的多模型审查，可用 `batch_query` 替代 `consensus` 的步骤 1：
+
+```
+# 替代方案：用 batch_query 并行获取多模型意见
+Use batch_query with:
+  models=["pro", "kimik", "deepseekv"]
+  prompt="请审查以下代码变更并评估：
+  1. 整体方案是否正确？
+  2. 有哪些潜在风险？
+  3. 你的改进建议是什么？
+  
+  [代码内容或文件路径]"
+
+# 然后手动综合各模型意见，再进行 codereview
+```
+
+**优势**：并行执行，总耗时 ≈ 最慢模型时间（而非串行累加）
+
+> ⚠️ **注意**：API 模型别名需与 `listmodels` 输出一致。

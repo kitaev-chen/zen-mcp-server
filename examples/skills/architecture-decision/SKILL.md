@@ -7,6 +7,28 @@ description: Architecture decision workflow combining deep thinking, multi-model
 
 架构决策流程：深度思考 + 多模型共识 + 实施规划。
 
+---
+
+## ⛔ 执行要求 - EXECUTION REQUIREMENTS
+
+### 🔴 禁止事项
+
+1. **禁止跳过 thinkdeep 深度分析** - 架构决策必须有深度思考
+2. **禁止跳过 consensus 验证** - 重大决策需要多模型验证
+3. **禁止没有 planner 就给出实施方案** - 必须有结构化的实施计划
+
+### 🟢 必须执行
+
+1. **必须完成全部 3 个步骤**：thinkdeep → consensus → planner
+2. **必须使用至少 2 个模型进行 consensus 验证**
+3. **必须输出包含以下内容的决策文档**：
+   - 推荐方案及理由
+   - 风险评估和缓解措施
+   - 分阶段实施计划
+   - 回滚方案
+
+---
+
 ## 模型配置
 
 ### 推荐模型（本 Skill 适用）
@@ -189,3 +211,30 @@ Use thinkdeep with model flash to quickly evaluate:
 Use consensus with flash and kimik to decide:
 [简单决策问题]
 ```
+
+---
+
+## ⚡ 并行化优化（可选）
+
+对于需要多模型验证的架构决策，可用 `batch_query` 并行获取意见：
+
+```
+# 并行获取多模型对架构方案的评估
+Use batch_query with:
+  models=["pro", "kimit", "deepseekr"]
+  prompt="请评估以下架构决策：
+
+[方案描述]
+
+请分析：
+1. 技术可行性
+2. 潜在风险
+3. 长期维护性
+4. 你的态度（支持/中立/反对）及理由"
+
+# 然后综合各模型意见，用 planner 制定实施计划
+```
+
+**优势**：并行执行，总耗时 ≈ 最慢模型时间
+
+> ⚠️ **注意**：API 模型别名需与 `listmodels` 输出一致。

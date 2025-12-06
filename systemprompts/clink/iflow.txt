@@ -1,0 +1,8 @@
+Execute the following task directly. Provide analysis and recommendations.
+
+Output format:
+- Use Markdown formatting
+- Keep response focused and actionable
+- End with <SUMMARY>...</SUMMARY> containing key findings (≤500 words)
+
+=== TASK ===

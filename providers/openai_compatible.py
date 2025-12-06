@@ -1,13 +1,16 @@
 """Base class for OpenAI-compatible API providers."""
 
+import asyncio
 import copy
 import ipaddress
 import logging
-from typing import Optional
+from typing import Any, Callable, Optional
 from urllib.parse import urlparse
 
-from openai import OpenAI
+import httpx
+from openai import AsyncOpenAI, OpenAI
 
+from utils.concurrency_v2 import get_advanced_concurrency_manager
 from utils.env import get_env, suppress_env_vars
 from utils.image_utils import validate_image
 
@@ -253,12 +256,9 @@ class OpenAICompatibleProvider(ModelProvider):
                 raise
             raise ValueError(f"Invalid base URL '{self.base_url}': {str(e)}")
 
-    @property
-    def client(self):
+    async def get_client(self):
         """Lazy initialization of OpenAI client with security checks and timeout configuration."""
         if self._client is None:
-            import httpx
-
             proxy_env_vars = ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]
 
             with suppress_env_vars(*proxy_env_vars):
@@ -275,14 +275,14 @@ class OpenAICompatibleProvider(ModelProvider):
                     # Check for test transport injection
                     if hasattr(self, "_test_transport"):
                         # Use custom transport for testing (HTTP recording/replay)
-                        http_client = httpx.Client(
+                        http_client = httpx.AsyncClient(
                             transport=self._test_transport,
                             timeout=timeout_config,
                             follow_redirects=True,
                         )
                     else:
                         # Normal production client
-                        http_client = httpx.Client(
+                        http_client = httpx.AsyncClient(
                             timeout=timeout_config,
                             follow_redirects=True,
                         )
@@ -309,7 +309,7 @@ class OpenAICompatibleProvider(ModelProvider):
                     )
 
                     # Create OpenAI client with custom httpx client
-                    self._client = OpenAI(**client_kwargs)
+                    self._client = AsyncOpenAI(**client_kwargs)
 
                 except Exception as e:
                     # If all else fails, try absolute minimal client without custom httpx
@@ -321,7 +321,7 @@ class OpenAICompatibleProvider(ModelProvider):
                         minimal_kwargs = {"api_key": self.api_key}
                         if self.base_url:
                             minimal_kwargs["base_url"] = self.base_url
-                        self._client = OpenAI(**minimal_kwargs)
+                        self._client = AsyncOpenAI(**minimal_kwargs)
                     except Exception as fallback_error:
                         logging.error("Even minimal OpenAI client creation failed: %s", fallback_error)
                         raise
@@ -385,7 +385,7 @@ class OpenAICompatibleProvider(ModelProvider):
 
         return content
 
-    def _generate_with_responses_endpoint(
+    async def _generate_with_responses_endpoint(
         self,
         model_name: str,
         messages: list,
@@ -436,7 +436,7 @@ class OpenAICompatibleProvider(ModelProvider):
         retry_delays = [1, 3, 5, 8]
         attempt_counter = {"value": 0}
 
-        def _attempt() -> ModelResponse:
+        async def _attempt() -> ModelResponse:
             attempt_counter["value"] += 1
             import json
 
@@ -445,7 +445,8 @@ class OpenAICompatibleProvider(ModelProvider):
                 f"o3-pro API request (sanitized): {json.dumps(sanitized_params, indent=2, ensure_ascii=False)}"
             )
 
-            response = self.client.responses.create(**completion_params)
+            client = await self.get_client()
+            response = await client.responses.create(**completion_params)
 
             content = self._safe_extract_output_text(response)
 
@@ -476,7 +477,7 @@ class OpenAICompatibleProvider(ModelProvider):
             )
 
         try:
-            return self._run_with_retries(
+            return await self._run_with_retries_async(
                 operation=_attempt,
                 max_attempts=max_retries,
                 delays=retry_delays,
@@ -488,7 +489,59 @@ class OpenAICompatibleProvider(ModelProvider):
             logging.error(error_msg)
             raise RuntimeError(error_msg) from exc
 
-    def generate_content(
+    async def _run_with_retries_async(
+        self,
+        operation: Callable[[], Any],
+        *,
+        max_attempts: int,
+        delays: Optional[list[float]] = None,
+        log_prefix: str = "",
+    ):
+        """Execute ``operation`` with retry semantics (async version)."""
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be >= 1")
+
+        attempts = max_attempts
+        delays = delays or []
+        last_exc: Optional[Exception] = None
+
+        for attempt_index in range(attempts):
+            try:
+                return await operation()
+            except Exception as exc:
+                last_exc = exc
+                attempt_number = attempt_index + 1
+
+                # Decide whether to retry based on subclass hook
+                retryable = self._is_error_retryable(exc)
+                if not retryable or attempt_number >= attempts:
+                    raise
+
+                delay_idx = min(attempt_index, len(delays) - 1) if delays else -1
+                delay = delays[delay_idx] if delay_idx >= 0 else 0.0
+
+                if delay > 0:
+                    logging.warning(
+                        "%s retryable error (attempt %s/%s): %s. Retrying in %ss...",
+                        log_prefix or self.__class__.__name__,
+                        attempt_number,
+                        attempts,
+                        exc,
+                        delay,
+                    )
+                    await asyncio.sleep(delay)
+                else:
+                    logging.warning(
+                        "%s retryable error (attempt %s/%s): %s. Retrying...",
+                        log_prefix or self.__class__.__name__,
+                        attempt_number,
+                        attempts,
+                        exc,
+                    )
+
+        raise last_exc if last_exc else RuntimeError("Retry loop exited without result")
+
+    async def generate_content(
         self,
         prompt: str,
         model_name: str,
@@ -614,7 +667,7 @@ class OpenAICompatibleProvider(ModelProvider):
         if use_responses_api:
             # These models require the /v1/responses endpoint for stateful context
             # If it fails, we should not fall back to chat/completions
-            return self._generate_with_responses_endpoint(
+            return await self._generate_with_responses_endpoint(
                 model_name=resolved_model,
                 messages=messages,
                 temperature=temperature,
@@ -628,30 +681,57 @@ class OpenAICompatibleProvider(ModelProvider):
         retry_delays = [1, 3, 5, 8]  # Progressive delays: 1s, 3s, 5s, 8s
         attempt_counter = {"value": 0}
 
-        def _attempt() -> ModelResponse:
+        # Get concurrency manager components
+        manager = get_advanced_concurrency_manager()
+        circuit_breaker = manager.get_circuit_breaker(self.FRIENDLY_NAME)
+        rate_limiter = manager.get_rate_limiter(self.FRIENDLY_NAME)
+
+        async def _attempt() -> ModelResponse:
             attempt_counter["value"] += 1
-            response = self.client.chat.completions.create(**completion_params)
+            
+            # Rate limiting
+            await rate_limiter.acquire()
+            
+            try:
+                client = await self.get_client()
+                response = await client.chat.completions.create(**completion_params)
 
-            content = response.choices[0].message.content
-            usage = self._extract_usage(response)
+                # Defensive check: ensure choices exists and first choice has message
+                if not response.choices or len(response.choices) == 0:
+                    raise ValueError(f"Empty or missing choices in API response: {response}")
+                
+                first_choice = response.choices[0]
+                if not first_choice.message:
+                    raise ValueError(f"No message in first choice: {first_choice}")
+                
+                content = first_choice.message.content
+                usage = self._extract_usage(response)
 
-            return ModelResponse(
-                content=content,
-                usage=usage,
-                model_name=resolved_model,
-                friendly_name=self.FRIENDLY_NAME,
-                provider=self.get_provider_type(),
-                metadata={
-                    "finish_reason": response.choices[0].finish_reason,
-                    "model": response.model,
-                    "id": response.id,
-                    "created": response.created,
-                },
-            )
+                await rate_limiter.record_success()
+                
+                return ModelResponse(
+                    content=content,
+                    usage=usage,
+                    model_name=resolved_model,
+                    friendly_name=self.FRIENDLY_NAME,
+                    provider=self.get_provider_type(),
+                    metadata={
+                        "finish_reason": first_choice.finish_reason,
+                        "model": response.model,
+                        "id": response.id,
+                        "created": response.created,
+                    },
+                )
+            except Exception:
+                await rate_limiter.record_failure()
+                raise
+
+        async def _protected_call():
+            return await circuit_breaker.call(_attempt)
 
         try:
-            return self._run_with_retries(
-                operation=_attempt,
+            return await self._run_with_retries_async(
+                operation=_protected_call,
                 max_attempts=max_retries,
                 delays=retry_delays,
                 log_prefix=f"{self.FRIENDLY_NAME} API ({resolved_model})",

@@ -371,10 +371,13 @@ class CLinkTool(SimpleTool):
         )
 
         # Strategy 1: Try to extract and return summary
+        # Only use summary if it's substantial (at least 5 tokens / ~20 chars)
+        # This prevents returning empty or near-empty summaries
+        MIN_SUMMARY_TOKENS = 5
         summary = self._extract_summary(content)
         if summary:
             summary_tokens = estimate_tokens(summary)
-            if summary_tokens <= MAX_RESPONSE_TOKENS:
+            if summary_tokens >= MIN_SUMMARY_TOKENS and summary_tokens <= MAX_RESPONSE_TOKENS:
                 summary_metadata = self._prune_metadata(metadata, client, reason="summary")
                 summary_metadata.update(
                     {

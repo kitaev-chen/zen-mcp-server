@@ -2,20 +2,22 @@
   "name": "iflow",
   "command": "iflow",
   "additional_args": [
-    "--yolo"
+    "--yolo",
+    "--model",
+    "MiniMax-M2"
   ],
   "env": {},
   "roles": {
     "default": {
-      "prompt_path": "systemprompts/clink/default.txt",
+      "prompt_path": "systemprompts/clink/iflow.txt",
       "role_args": []
     },
     "planner": {
-      "prompt_path": "systemprompts/clink/default_planner.txt",
+      "prompt_path": "systemprompts/clink/iflow_planner.txt",
       "role_args": []
     },
     "codereviewer": {
-      "prompt_path": "systemprompts/clink/default_codereviewer.txt",
+      "prompt_path": "systemprompts/clink/iflow_codereviewer.txt",
       "role_args": []
     }
   }

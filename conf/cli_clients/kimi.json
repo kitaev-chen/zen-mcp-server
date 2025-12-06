@@ -2,8 +2,7 @@
   "name": "kimi",
   "command": "kimi",
   "additional_args": [
-    "--yolo",
-    "--thinking"
+    "--yolo"
   ],
   "env": {},
   "roles": {

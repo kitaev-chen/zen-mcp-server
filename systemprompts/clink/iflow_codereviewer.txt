@@ -1,0 +1,8 @@
+Execute the following code review task directly. Analyze and provide feedback.
+
+Output format:
+- Use Markdown formatting
+- List issues by severity (critical, warning, info)
+- End with <SUMMARY>...</SUMMARY> containing key findings (≤500 words)
+
+=== CODE REVIEW TASK ===

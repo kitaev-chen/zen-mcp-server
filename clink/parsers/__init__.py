@@ -8,11 +8,13 @@ from .codex import CodexJSONLParser
 from .gemini import GeminiJSONParser
 from .iflow import IflowPlainParser
 from .kimi import KimiPlainParser
+from .qwen import QwenJSONParser
 from .vecli import VecliPlainParser
 
 _PARSER_CLASSES: dict[str, type[BaseParser]] = {
     CodexJSONLParser.name: CodexJSONLParser,
     GeminiJSONParser.name: GeminiJSONParser,
+    QwenJSONParser.name: QwenJSONParser,
     ClaudeJSONParser.name: ClaudeJSONParser,
     IflowPlainParser.name: IflowPlainParser,
     KimiPlainParser.name: KimiPlainParser,

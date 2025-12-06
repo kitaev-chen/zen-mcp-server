@@ -28,7 +28,7 @@ def kimi_agent():
     client = ResolvedCLIClient(
         name="kimi",
         executable=["kimi"],
-        internal_args=["--yolo", "--print", "--thinking"],
+        internal_args=["--yolo", "--print"],
         config_args=[],
         env={},
         timeout_seconds=30,

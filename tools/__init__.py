@@ -4,6 +4,7 @@ Tool implementations for Zen MCP Server
 
 from .analyze import AnalyzeTool
 from .apilookup import LookupTool
+from .batch_query import BatchQueryTool
 from .challenge import ChallengeTool
 from .chat import ChatTool
 from .clink import CLinkTool
@@ -25,6 +26,7 @@ from .version import VersionTool
 
 __all__ = [
     "AnalyzeTool",
+    "BatchQueryTool",
     "ChallengeTool",
     "ChatTool",
     "CLinkTool",

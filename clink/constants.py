@@ -53,12 +53,12 @@ INTERNAL_DEFAULTS: dict[str, CLIInternalDefaults] = {
     ),
     "kimi": CLIInternalDefaults(
         parser="kimi_plain",
-        additional_args=["--print", "--thinking"],
+        additional_args=["--print"],
         default_role_prompt="systemprompts/clink/default.txt",
         runner="kimi",
     ),
     "qwen": CLIInternalDefaults(
-        parser="gemini_json",
+        parser="qwen_json",
         additional_args=["--output-format", "json"],
         default_role_prompt="systemprompts/clink/default.txt",
         runner="qwen",

@@ -1,4 +1,4 @@
-"""Parser for Gemini CLI JSON output."""
+"""Parser for Qwen CLI JSON output."""
 
 from __future__ import annotations
 
@@ -8,31 +8,31 @@ from typing import Any
 from .base import BaseParser, ParsedCLIResponse, ParserError
 
 
-class GeminiJSONParser(BaseParser):
-    """Parse stdout produced by `gemini -o json`."""
+class QwenJSONParser(BaseParser):
+    """Parse stdout produced by `qwen --output-format json`."""
 
-    name = "gemini_json"
+    name = "qwen_json"
 
     def parse(self, stdout: str, stderr: str) -> ParsedCLIResponse:
         if not stdout.strip():
-            raise ParserError("CLI returned empty stdout while JSON output was expected")
+            raise ParserError("Qwen CLI returned empty stdout while JSON output was expected")
 
         try:
             raw_payload = json.loads(stdout)
-        except json.JSONDecodeError as exc:  # pragma: no cover - defensive logging
-            raise ParserError(f"Failed to decode CLI JSON output: {exc}") from exc
+        except json.JSONDecodeError as exc:
+            raise ParserError(f"Failed to decode Qwen CLI JSON output: {exc}") from exc
 
-        # Handle JSON array responses (e.g., from Qwen CLI)
-        # Some CLIs return [{...}] instead of {...}
+        # Handle JSON array responses
+        # Qwen CLI may return [{...}] instead of {...}
         if isinstance(raw_payload, list):
             if raw_payload and isinstance(raw_payload[0], dict):
                 payload: dict[str, Any] = raw_payload[0]
             else:
-                raise ParserError("CLI returned JSON array without valid response object")
+                raise ParserError("Qwen CLI returned JSON array without valid response object")
         elif isinstance(raw_payload, dict):
             payload = raw_payload
         else:
-            raise ParserError(f"CLI returned unexpected JSON type: {type(raw_payload).__name__}")
+            raise ParserError(f"Qwen CLI returned unexpected JSON type: {type(raw_payload).__name__}")
 
         response = payload.get("response")
         response_text = response.strip() if isinstance(response, str) else ""
@@ -66,10 +66,10 @@ class GeminiJSONParser(BaseParser):
                 metadata["stderr"] = stderr.strip()
             return ParsedCLIResponse(content=fallback_message, metadata=metadata)
 
-        raise ParserError("Gemini CLI response is missing a textual 'response' field")
+        raise ParserError("Qwen CLI response is missing a textual 'response' field")
 
     def _build_fallback_message(self, payload: dict[str, Any], stderr: str) -> tuple[str | None, dict[str, Any]]:
-        """Derive a human friendly message when Gemini returns empty content."""
+        """Derive a human friendly message when Qwen returns empty content."""
 
         stderr_text = stderr.strip() if stderr else ""
         stderr_lower = stderr_text.lower()
@@ -78,7 +78,7 @@ class GeminiJSONParser(BaseParser):
         if "429" in stderr_lower or "rate limit" in stderr_lower:
             extra_metadata["rate_limit_status"] = 429
             message = (
-                "Gemini request returned no content because the API reported a 429 rate limit. "
+                "Qwen request returned no content because the API reported a 429 rate limit. "
                 "Retry after reducing the request size or waiting for quota to replenish."
             )
             return message, extra_metadata
@@ -98,13 +98,13 @@ class GeminiJSONParser(BaseParser):
                             if isinstance(total_requests, int):
                                 extra_metadata["api_total_requests"] = total_requests
                             message = (
-                                "Gemini CLI returned no textual output. The API reported "
+                                "Qwen CLI returned no textual output. The API reported "
                                 f"{total_errors} error(s); see stderr for details."
                             )
                             return message, extra_metadata
 
         if stderr_text:
-            message = "Gemini CLI returned no textual output. Raw stderr was preserved for troubleshooting."
+            message = "Qwen CLI returned no textual output. Raw stderr was preserved for troubleshooting."
             return message, extra_metadata
 
         return None, extra_metadata
